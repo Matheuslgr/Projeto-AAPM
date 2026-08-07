@@ -30,10 +30,17 @@ def listar_produtos(
     request: Request,
     busca: str = "",
     categoria_id: int = 0,       # 0 = todas as categorias
+    mostrar: str = "ativos",   # ativos ou inativos
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    query = db.query(Produto).filter(Produto.ativo == True)
+    mostrar = mostrar.lower()
+
+    if mostrar == "inativos":
+        query = db.query(Produto).filter(Produto.ativo == False)
+    else:
+        mostrar = "ativos"
+        query = db.query(Produto).filter(Produto.ativo == True)
 
     if busca:
         query = query.filter(Produto.nome.ilike(f"%{busca}%"))
@@ -54,6 +61,7 @@ def listar_produtos(
             "categorias":   categorias,
             "busca":        busca,
             "categoria_id": categoria_id,
+            "mostrar":      mostrar,
         }
     )
 
@@ -258,6 +266,61 @@ def desativar_produto(
         db.commit()
 
     return RedirectResponse(url="/produtos?desativado=ok", status_code=302)
+
+
+# ============================================================
+# REATIVAR
+# ============================================================
+
+@router.post("/{produto_id}/reativar")
+def reativar_produto(
+    produto_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+
+    if produto:
+        produto.ativo = True
+        db.commit()
+
+    return RedirectResponse(url="/produtos?reativado=ok", status_code=302)
+
+
+# ============================================================
+# TOGGLE ATIVO
+# ============================================================
+
+@router.post("/{produto_id}/toggle-ativo")
+def toggle_ativo(
+    produto_id: int,
+    mostrar: str = Form("ativos"),
+    busca: str = Form(""),
+    categoria_id: int = Form(0),
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    status = None
+
+    if produto:
+        produto.ativo = not produto.ativo
+        db.commit()
+        status = "reativado" if produto.ativo else "desativado"
+
+    params = [f"mostrar={mostrar}"]
+    if busca:
+        params.append(f"busca={busca}")
+    if categoria_id:
+        params.append(f"categoria_id={categoria_id}")
+    if status:
+        params.append(f"{status}=ok")
+
+    redirect_url = "/produtos"
+    if params:
+        redirect_url += "?" + "&".join(params)
+
+    return RedirectResponse(url=redirect_url, status_code=302)
 
 
 # ============================================================

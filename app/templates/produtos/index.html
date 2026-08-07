@@ -3,7 +3,7 @@
 {% block title %}Produtos — AAPM PDV{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="/static/css/produtos.css?v=7">
+<link rel="stylesheet" href="/static/css/produtos.css?v=8">
 {% endblock %}
 
 {% block content %}
@@ -23,10 +23,23 @@
                 </div>
             </div>
             {% if usuario.role == 'admin' %}
-            <a href="/produtos/novo" class="btn-primary">
-                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
-                Novo Produto
-            </a>
+            <div style="display: flex; gap: 8px;">
+                {% if mostrar == 'inativos' %}
+                <a href="/produtos?mostrar=ativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}" class="btn-secondary">
+                    <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                    Ver produtos ativos
+                </a>
+                {% else %}
+                <a href="/produtos?mostrar=inativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}" class="btn-secondary">
+                    <i data-lucide="eye-off" style="width: 18px; height: 18px;"></i>
+                    Ver produtos desativados
+                </a>
+                {% endif %}
+                <a href="/produtos/novo" class="btn-primary">
+                    <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                    Novo Produto
+                </a>
+            </div>
             {% endif %}
         </div>
 
@@ -39,9 +52,16 @@
         {% if request.query_params.get('desativado') == 'ok' %}
         <div class="alert alert-success">Produto desativado com sucesso.</div>
         {% endif %}
+        {% if request.query_params.get('reativado') == 'ok' %}
+        <div class="alert alert-success">Produto reativado com sucesso.</div>
+        {% endif %}
+        {% if mostrar == 'inativos' %}
+        <div class="alert alert-info">Mostrando produtos desativados.</div>
+        {% endif %}
 
         <!-- Filtros -->
         <form method="get" action="/produtos" class="filters-bar" id="filterFormProdutos">
+            <input type="hidden" name="mostrar" value="{{ mostrar }}">
             <div class="search-input-wrapper">
                 <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca }}" id="busca-input"
                     onkeydown="if(event.key === 'Enter') event.preventDefault();">
@@ -101,6 +121,7 @@
                     <th>Categoria</th>
                     <th>Preço</th>
                     <th>Estoque</th>
+                    <th>Status</th>
                     <th style="text-align: center;">Ações</th>
                 </tr>
             </thead>
@@ -147,22 +168,32 @@
                             {% endif %}
                         </div>
                     </td>
+                    <td>
+                        {% if usuario.role == 'admin' %}
+                        <form action="/produtos/{{ p.id }}/toggle-ativo" method="post" style="margin: 0; display: inline-flex; align-items: center; gap: 8px;">
+                            <input type="hidden" name="mostrar" value="{{ mostrar }}">
+                            <input type="hidden" name="busca" value="{{ busca }}">
+                            <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
+                            <label class="switch">
+                                <input type="checkbox" onchange="this.form.submit()" {% if p.ativo %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                            <span class="status-text {{ 'ativo' if p.ativo else 'inativo' }}">
+                                {{ 'Ativo' if p.ativo else 'Inativo' }}
+                            </span>
+                        </form>
+                        {% else %}
+                        <span class="status-text {{ 'ativo' if p.ativo else 'inativo' }}">
+                            {{ 'Ativo' if p.ativo else 'Inativo' }}
+                        </span>
+                        {% endif %}
+                    </td>
                     <td style="text-align: center;">
                         <div style="display: flex; justify-content: center; gap: 8px;">
                             {% if usuario.role == 'admin' %}
                             <a href="/produtos/{{ p.id }}/editar" class="action-btn-icon" title="Editar">
                                 <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
                             </a>
-                            <form id="form-desativar-{{ p.id }}" action="/produtos/{{ p.id }}/desativar" method="post" style="margin: 0;">
-                                <button
-                                    type="button"
-                                    class="action-btn"
-                                    title="Desativar"
-                                    onclick="abrirModalDesativar('form-desativar-{{ p.id }}', '{{ p.nome }}')"
-                                >
-                                    <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
-                                </button>
-                            </form>
                             {% endif %}
                         </div>
                     </td>
@@ -170,7 +201,7 @@
                 {% endfor %}
                 {% if not produtos %}
                 <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
                         Nenhum produto encontrado.
                     </td>
                 </tr>
@@ -181,54 +212,5 @@
     </div>
 </div>
 
-<!-- Modal de confirmação de desativação -->
-<div id="modal-desativar" class="modal-overlay" aria-modal="true" role="dialog" aria-labelledby="modal-titulo">
-    <div class="modal-box">
-        <div class="modal-icon-wrap">
-            <i data-lucide="trash-2" class="modal-trash-icon"></i>
-        </div>
-        <h3 id="modal-titulo" class="modal-title">Desativar produto</h3>
-        <p class="modal-desc">
-            Tem certeza que deseja desativar o produto
-            <strong id="modal-nome-produto"></strong>?
-            <br><span class="modal-warn">Ele não aparecerá mais no PDV.</span>
-        </p>
-        <div class="modal-actions">
-            <button type="button" class="modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
-            <button type="button" class="modal-btn-confirm" id="modal-btn-confirmar">Desativar</button>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
 
-{% block scripts %}
-<script>
-    let _formParaDesativar = null;
-
-    function abrirModalDesativar(formId, nomeProduto) {
-        _formParaDesativar = document.getElementById(formId);
-        document.getElementById('modal-nome-produto').textContent = nomeProduto;
-        const overlay = document.getElementById('modal-desativar');
-        overlay.classList.add('visible');
-        lucide.createIcons();
-    }
-
-    function fecharModal() {
-        document.getElementById('modal-desativar').classList.remove('visible');
-        _formParaDesativar = null;
-    }
-
-    document.getElementById('modal-btn-confirmar').addEventListener('click', () => {
-        if (_formParaDesativar) _formParaDesativar.submit();
-    });
-
-    document.getElementById('modal-desativar').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) fecharModal();
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') fecharModal();
-    });
-</script>
-{% endblock %}
