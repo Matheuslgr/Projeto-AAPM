@@ -170,12 +170,12 @@
                     </td>
                     <td>
                         {% if usuario.role == 'admin' %}
-                        <form action="/produtos/{{ p.id }}/toggle-ativo" method="post" style="margin: 0; display: inline-flex; align-items: center; gap: 8px;">
+                        <form id="form-toggle-{{ p.id }}" action="/produtos/{{ p.id }}/toggle-ativo" method="post" style="margin: 0; display: inline-flex; align-items: center; gap: 8px;">
                             <input type="hidden" name="mostrar" value="{{ mostrar }}">
                             <input type="hidden" name="busca" value="{{ busca }}">
                             <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
                             <label class="switch">
-                                <input type="checkbox" onchange="this.form.submit()" {% if p.ativo %}checked{% endif %}>
+                                <input type="checkbox" id="checkbox-{{ p.id }}" onchange="abrirModalToggle('form-toggle-{{ p.id }}', '{{ p.nome }}', this)" {% if p.ativo %}checked{% endif %}>
                                 <span class="slider"></span>
                             </label>
                             <span class="status-text {{ 'ativo' if p.ativo else 'inativo' }}">
@@ -212,5 +212,68 @@
     </div>
 </div>
 
+<!-- Modal de confirmação de ativar/desativar -->
+<div id="modal-toggle-ativo" class="modal-overlay" aria-modal="true" role="dialog" aria-labelledby="modal-titulo-toggle">
+    <div class="modal-box">
+        <div class="modal-icon-wrap">
+            <i data-lucide="alert-circle" class="modal-trash-icon" style="color: #f59e0b;"></i>
+        </div>
+        <h3 id="modal-titulo-toggle" class="modal-title">Confirmar alteração</h3>
+        <p class="modal-desc">
+            Tem certeza que deseja <strong id="modal-acao"></strong> o produto
+            <strong id="modal-nome-produto-toggle"></strong>?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="fecharModalToggle()">Cancelar</button>
+            <button type="button" class="modal-btn-confirm" id="modal-btn-confirmar-toggle">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+{% block scripts %}
+<script>
+    let _formParaToggle = null;
+    let _checkboxParaToggle = null;
+
+    function abrirModalToggle(formId, nomeProduto, checkbox) {
+        event.preventDefault();
+        _formParaToggle = document.getElementById(formId);
+        _checkboxParaToggle = checkbox;
+        
+        const acao = !checkbox.checked ? 'desativar' : 'ativar';
+        document.getElementById('modal-acao').textContent = acao;
+        document.getElementById('modal-nome-produto-toggle').textContent = nomeProduto;
+        
+        const overlay = document.getElementById('modal-toggle-ativo');
+        overlay.classList.add('visible');
+        lucide.createIcons();
+    }
+
+    function fecharModalToggle() {
+        document.getElementById('modal-toggle-ativo').classList.remove('visible');
+        if (_checkboxParaToggle) {
+            _checkboxParaToggle.checked = !_checkboxParaToggle.checked;
+        }
+        _formParaToggle = null;
+        _checkboxParaToggle = null;
+    }
+
+    document.getElementById('modal-btn-confirmar-toggle').addEventListener('click', () => {
+        if (_formParaToggle) {
+            _formParaToggle.submit();
+        }
+    });
+
+    document.getElementById('modal-toggle-ativo').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) fecharModalToggle();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fecharModalToggle();
+    });
+</script>
+{% endblock %}
+
 
