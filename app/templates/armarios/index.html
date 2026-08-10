@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Agendamento de Armários — AAPM PDV{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/armarios.css">
+{% endblock %}
+
+{% block content %}
+<div class="armarios-container">
+
+    <!-- CABEÇALHO -->
+    <div class="armarios-header">
+        <div class="header-info">
+            <div class="header-icon">
+                <i data-lucide="archive" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="title-area">
+                <h1>Agendamento de Armários</h1>
+                <p>Gerencie reservas e veja a disponibilidade</p>
+            </div>
+        </div>
+        <button type="button" class="btn-novo-armario" id="btnAbrirNovoArmario">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            Novo Armário
+        </button>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total</span>
+            <span class="stat-value" id="totalStat">{{ total }}</span>
+        </div>
+        <div class="stat-card disponiveis-card">
+            <span class="stat-label">Disponíveis</span>
+            <span class="stat-value" id="disponiveisStat">{{ disponiveis }}</span>
+        </div>
+        <div class="stat-card ocupados-card">
+            <span class="stat-label">Ocupados</span>
+            <span class="stat-value" id="ocupadosStat">{{ ocupados }}</span>
+        </div>
+    </div>
+
+    <!-- BARRA DE CONTROLES: PESQUISA E FILTROS -->
+    <div class="controls-bar">
+        <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar por número, local ou aluno...">
+        </div>
+        <div class="filter-tabs">
+            <button type="button" class="filter-btn active" data-filter="todos">Todos</button>
+            <button type="button" class="filter-btn" data-filter="disponiveis">Disponíveis</button>
+            <button type="button" class="filter-btn" data-filter="ocupados">Ocupados</button>
+        </div>
+    </div>
+
+    <!-- GRID DE ARMÁRIOS -->
+    <div class="armarios-grid" id="armariosGrid">
+        {% for armario in armarios %}
+        <div class="armario-card {{ 'livre' if armario.status == 'Livre' else 'ocupado' }}" data-id="{{ armario.id }}">
+            <div class="armario-card-top">
+                <i data-lucide="{{ 'lock-keyhole-open' if armario.status == 'Livre' else 'lock-keyhole' }}" class="lock-icon" style="width: 20px; height: 20px;"></i>
+                <span class="status-badge">{{ armario.status }}</span>
+            </div>
+            <div class="armario-card-body">
+                <div class="numero">Nº {{ armario.numero }}</div>
+                <div class="localizacao">{{ armario.localizacao }}</div>
+                {% if armario.status == 'Ocupado' and armario.aluno_nome %}
+                <div class="aluno">{{ armario.aluno_nome }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: #64748b;">
+            <p style="font-size: 16px; font-weight: 500;">Nenhum armário cadastrado.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- MODAL 1: NOVO ARMÁRIO -->
+<div class="modal-overlay" id="modalNovoArmario">
+    <div class="modal-card">
+        <button type="button" class="modal-close" data-modal-close>
+            <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+
+        <div class="modal-header-title">Novo Armário</div>
+        <div style="margin-bottom: 20px;"></div>
+
+        <form id="formNovoArmario">
+            <div class="form-group">
+                <label class="form-label">Número <span class="req">*</span></label>
+                <input type="text" name="numero" class="form-control" required placeholder="Ex: 021">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Localização <span class="req">*</span></label>
+                <input type="text" name="localizacao" class="form-control" required placeholder="Ex: Bloco A">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal btn-secondary" data-modal-close>Cancelar</button>
+                <button type="submit" class="btn-modal btn-primary">Adicionar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 2 & 3: DETALHES / RESERVA DO ARMÁRIO -->
+<div class="modal-overlay" id="modalArmarioDetails">
+    <div class="modal-card">
+        <button type="button" class="modal-close" data-modal-close>
+            <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+
+        <div class="modal-header-title" id="detailsModalTitle">Armário Nº ---</div>
+        <div class="modal-status-line" id="detailsModalStatus">Status: ---</div>
+
+        <div id="detailsModalBody">
+            <!-- Conteúdo dinâmico carregado via JS -->
+        </div>
+    </div>
+<!-- MODAL DE CONFIRMAÇÃO PERSONALIZADO -->
+<div class="modal-overlay" id="modalConfirmacao">
+    <div class="modal-card" style="max-width: 440px;">
+        <button type="button" class="modal-close" id="btnConfirmClose">
+            <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+            <div id="confirmIconBox" class="header-icon" style="width: 44px; height: 44px; background: #fee2e2; color: #dc2626; border-radius: 10px;">
+                <i data-lucide="alert-triangle" id="confirmIcon" style="width: 22px; height: 22px;"></i>
+            </div>
+            <div>
+                <h3 id="confirmTitle" style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Confirmação</h3>
+            </div>
+        </div>
+
+        <p id="confirmMessage" style="font-size: 14px; color: #475569; margin-bottom: 24px; line-height: 1.5;"></p>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-modal btn-secondary" id="btnConfirmCancel">Cancelar</button>
+            <button type="button" class="btn-modal btn-danger" id="btnConfirmOk">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- CONTAINER DE TOAST NOTIFICATIONS -->
+<div id="toastContainer" class="toast-container"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/armarios.js"></script>
+{% endblock %}

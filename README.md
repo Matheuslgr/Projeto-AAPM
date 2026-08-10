@@ -35,7 +35,7 @@ python -m alembic upgrade head
 
 # Rodad o código
 ```bash
-python -m uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload 
 ```
 
 
