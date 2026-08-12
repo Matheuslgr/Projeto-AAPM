@@ -1,78 +1,134 @@
-<!-- templates/movimentacoes/historico.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Histórico — {{ produto.nome }}</title>
-</head>
-<body>
-    <h1>Histórico — {{ produto.nome }}</h1>
+{% extends "base.html" %}
 
-    <!-- Resumo do produto -->
-    <table border="1" cellpadding="8">
-        <tr>
-            <td><strong>Estoque atual</strong></td>
-            <td>{{ produto.estoque_atual }}</td>
-        </tr>
-        <tr>
-            <td><strong>Total de entradas</strong></td>
-            <td style="color:green">+ {{ total_entradas }}</td>
-        </tr>
-        <tr>
-            <td><strong>Total de saídas</strong></td>
-            <td style="color:red">- {{ total_saidas }}</td>
-        </tr>
-    </table>
+{% block title %}Histórico — {{ produto.nome }} — AAPM PDV{% endblock %}
 
-    <br>
-    <a href="/movimentacoes/nova?produto_id={{ produto.id }}">
-        + Registrar movimentação
-    </a>
+{% block styles %}
+<link rel="stylesheet" href="/static/css/movimentacoes.css?v=1">
+{% endblock %}
 
-    <!-- Histórico de movimentações -->
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Preço unit.</th>
-                <th>Total</th>
-                <th>Observação</th>
-                <th>Registrado por</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in movimentacoes %}
-            <tr>
-                <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    {% if m.tipo.value == 'entrada' %}
-                        <span style="color:green">▲ Entrada</span>
-                    {% else %}
-                        <span style="color:red">▼ Saída</span>
-                    {% endif %}
-                </td>
-                <td>{{ m.quantidade }}</td>
-                <td>R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
-                <td>R$ {{ "%.2f"|format(m.valor_total) }}</td>
-                <td>{{ m.observacao or "—" }}</td>
-                <td>{{ m.usuario.nome if m.usuario else "—" }}</td>
-            </tr>
-            {% endfor %}
+{% block content %}
+<div class="page-wrapper">
 
-            {% if not movimentacoes %}
-            <tr>
-                <td colspan="7" style="text-align:center">
-                    Nenhuma movimentação registrada.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+    <!-- Cards de Resumo -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i data-lucide="package" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-details">
+                <span class="stat-label">Estoque Atual</span>
+                <span class="stat-value">{{ produto.estoque_atual }} un.</span>
+            </div>
+        </div>
 
-    <p>
-        <a href="/produtos/{{ produto.id }}">← Voltar ao produto</a>
-    </p>
-</body>
-</html>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i data-lucide="arrow-down-left" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-details">
+                <span class="stat-label">Total Entradas</span>
+                <span class="stat-value" style="color: #16a34a;">+ {{ total_entradas }} un.</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i data-lucide="arrow-up-right" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-details">
+                <span class="stat-label">Total Saídas</span>
+                <span class="stat-value" style="color: #dc2626;">- {{ total_saidas }} un.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-info">
+                <a href="/produtos/{{ produto.id }}" class="btn-back" title="Voltar ao produto">
+                    <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+                </a>
+                <div class="header-icon">
+                    <i data-lucide="history" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="title-area">
+                    <h2>Histórico — {{ produto.nome }}</h2>
+                    <p>Registros de movimentação deste produto</p>
+                </div>
+            </div>
+
+            <a href="/movimentacoes/nova?produto_id={{ produto.id }}" class="btn-primary">
+                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                Registrar movimentação
+            </a>
+        </div>
+
+        <!-- Tabela de Movimentações -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Data & Hora</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unit.</th>
+                    <th>Total</th>
+                    <th>Observação</th>
+                    <th>Registrado por</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td style="white-space: nowrap; color: var(--text-muted);">
+                        <i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                        {{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}
+                    </td>
+                    <td>
+                        {% if m.tipo.value == 'entrada' %}
+                            <span class="badge-tipo entrada">
+                                <i data-lucide="arrow-down-left"></i> Entrada
+                            </span>
+                        {% else %}
+                            <span class="badge-tipo saida">
+                                <i data-lucide="arrow-up-right"></i> Saída
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ m.quantidade }} un.</strong>
+                    </td>
+                    <td>R$ {{ "%.2f"|format(m.preco_unitario)|replace('.', ',') }}</td>
+                    <td>
+                        <strong>R$ {{ "%.2f"|format(m.valor_total)|replace('.', ',') }}</strong>
+                    </td>
+                    <td>
+                        <span style="color: {{ 'var(--text-primary)' if m.observacao else 'var(--text-muted)' }};">
+                            {{ m.observacao or "—" }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="user-badge">
+                            <div class="user-avatar-tiny">
+                                {{ (m.usuario.nome[0]|upper) if m.usuario else '?' }}
+                            </div>
+                            <span>{{ m.usuario.nome if m.usuario else "—" }}</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% if not movimentacoes %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px 16px;">
+                        <i data-lucide="inbox" style="width: 40px; height: 40px; margin-bottom: 8px; color: #cbd5e1; display: block; margin-left: auto; margin-right: auto;"></i>
+                        Nenhuma movimentação registrada para este produto.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+{% endblock %}

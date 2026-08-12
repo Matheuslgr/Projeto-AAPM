@@ -1,91 +1,141 @@
-<!-- templates/movimentacoes/index.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Movimentações — AAPM SENAI</title>
-</head>
-<body>
-    <h1>Histórico de movimentações</h1>
+{% extends "base.html" %}
 
-    <!-- Filtros -->
-    <form method="get" action="/movimentacoes">
-        <select name="produto_id">
-            <option value="0">Todos os produtos</option>
-            {% for p in produtos %}
-                <option value="{{ p.id }}"
-                    {{ 'selected' if produto_id == p.id else '' }}>
-                    {{ p.nome }}
-                </option>
-            {% endfor %}
-        </select>
+{% block title %}Movimentações — AAPM PDV{% endblock %}
 
-        <select name="tipo">
-            <option value="">Todos os tipos</option>
-            <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>
-                Entrada
-            </option>
-            <option value="saida" {{ 'selected' if tipo == 'saida' else '' }}>
-                Saída
-            </option>
-        </select>
+{% block styles %}
+<link rel="stylesheet" href="/static/css/movimentacoes.css?v=1">
+{% endblock %}
 
-        <button type="submit">Filtrar</button>
+{% block content %}
+<div class="page-wrapper">
+    <div class="content-card">
 
-        {% if produto_id or tipo %}
-            <a href="/movimentacoes">Limpar</a>
-        {% endif %}
-    </form>
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-info">
+                <div class="header-icon">
+                    <i data-lucide="arrow-left-right" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="title-area">
+                    <h2>Histórico de Movimentações</h2>
+                    <p>Acompanhe todas as entradas e saídas de estoque do sistema</p>
+                </div>
+            </div>
 
-    <a href="/movimentacoes/nova">+ Registrar movimentação</a>
+            <a href="/movimentacoes/nova" class="btn-primary">
+                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                Registrar movimentação
+            </a>
+        </div>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Produto</th>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Preço unit.</th>
-                <th>Total</th>
-                <th>Observação</th>
-                <th>Registrado por</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in movimentacoes %}
-            <tr>
-                <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    <a href="/produtos/{{ m.produto_id }}">
-                        {{ m.produto.nome }}
+        <!-- Filtros -->
+        <form method="get" action="/movimentacoes" class="filters-bar">
+            <div class="filter-group">
+                <select name="produto_id" class="filter-select">
+                    <option value="0">Todos os produtos</option>
+                    {% for p in produtos %}
+                        <option value="{{ p.id }}" {{ 'selected' if produto_id == p.id else '' }}>
+                            {{ p.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="tipo" class="filter-select">
+                    <option value="">Todos os tipos</option>
+                    <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>
+                        Entrada
+                    </option>
+                    <option value="saida" {{ 'selected' if tipo == 'saida' else '' }}>
+                        Saída
+                    </option>
+                </select>
+
+                <button type="submit" class="btn-filter-submit">
+                    <i data-lucide="filter" style="width: 16px; height: 16px;"></i>
+                    Filtrar
+                </button>
+
+                {% if produto_id or tipo %}
+                    <a href="/movimentacoes" class="btn-filter-clear">
+                        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                        Limpar filtros
                     </a>
-                </td>
-                <td>
-                    {% if m.tipo.value == 'entrada' %}
-                        <span style="color:green">▲ Entrada</span>
-                    {% else %}
-                        <span style="color:red">▼ Saída</span>
-                    {% endif %}
-                </td>
-                <td>{{ m.quantidade }}</td>
-                <td>R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
-                <td>R$ {{ "%.2f"|format(m.valor_total) }}</td>
-                <td>{{ m.observacao or "—" }}</td>
-                <td>{{ m.usuario.nome if m.usuario else "—" }}</td>
-            </tr>
-            {% endfor %}
+                {% endif %}
+            </div>
+        </form>
 
-            {% if not movimentacoes %}
-            <tr>
-                <td colspan="8" style="text-align:center">
-                    Nenhuma movimentação encontrada.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+        <!-- Tabela -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Data & Hora</th>
+                    <th>Produto</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unit.</th>
+                    <th>Total</th>
+                    <th>Observação</th>
+                    <th>Registrado por</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td style="white-space: nowrap; color: var(--text-muted);">
+                        <i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                        {{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}
+                    </td>
+                    <td>
+                        <a href="/produtos/{{ m.produto_id }}" class="product-link">
+                            <i data-lucide="package" style="width: 15px; height: 15px;"></i>
+                            {{ m.produto.nome }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if m.tipo.value == 'entrada' %}
+                            <span class="badge-tipo entrada">
+                                <i data-lucide="arrow-down-left"></i> Entrada
+                            </span>
+                        {% else %}
+                            <span class="badge-tipo saida">
+                                <i data-lucide="arrow-up-right"></i> Saída
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ m.quantidade }} un.</strong>
+                    </td>
+                    <td>R$ {{ "%.2f"|format(m.preco_unitario)|replace('.', ',') }}</td>
+                    <td>
+                        <strong>R$ {{ "%.2f"|format(m.valor_total)|replace('.', ',') }}</strong>
+                    </td>
+                    <td>
+                        <span style="color: {{ 'var(--text-primary)' if m.observacao else 'var(--text-muted)' }};">
+                            {{ m.observacao or "—" }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="user-badge">
+                            <div class="user-avatar-tiny">
+                                {{ (m.usuario.nome[0]|upper) if m.usuario else '?' }}
+                            </div>
+                            <span>{{ m.usuario.nome if m.usuario else "—" }}</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
 
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+                {% if not movimentacoes %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px 16px;">
+                        <i data-lucide="inbox" style="width: 40px; height: 40px; margin-bottom: 8px; color: #cbd5e1; display: block; margin-left: auto; margin-right: auto;"></i>
+                        Nenhuma movimentação encontrada.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,48 +1,112 @@
-<!-- templates/produtos/detalhe.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ produto.nome }} — AAPM SENAI</title>
-</head>
-<body>
-    {% if request.query_params.get('editado') == 'ok' %}
-        <p style="color:green">Produto atualizado com sucesso!</p>
-    {% endif %}
+{% extends "base.html" %}
 
-    <img src="{{ produto.imagem_url }}"
-         alt="{{ produto.nome }}"
-         width="200"
-         style="object-fit:cover">
+{% block title %}{{ produto.nome }} — AAPM PDV{% endblock %}
 
-    <h1>{{ produto.nome }}</h1>
+{% block styles %}
+<link rel="stylesheet" href="/static/css/movimentacoes.css?v=2">
+{% endblock %}
 
-    <p>Categoria: {{ produto.categoria.nome if produto.categoria else "—" }}</p>
-
-    <table border="1" cellpadding="8">
-        <tr><td><strong>Preço</strong></td>
-            <td>R$ {{ "%.2f"|format(produto.preco) }}</td></tr>
-        <tr><td><strong>Estoque atual</strong></td>
-            <td>{{ produto.estoque_atual }}</td></tr>
-    </table>
+{% block content %}
+<div class="page-wrapper">
 
     {% if request.query_params.get('movimentacao') == 'ok' %}
-        <p style="color:green">Movimentação registrada com sucesso!</p>
+    <div class="alert alert-success">
+        <i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+        <span>Movimentação registrada com sucesso!</span>
+    </div>
     {% endif %}
 
-    <!-- Links de movimentação -->
-    <a href="/movimentacoes/nova?produto_id={{ produto.id }}">
-        + Registrar movimentação
-    </a>
-    &nbsp;|&nbsp;
-    <a href="/movimentacoes/produto/{{ produto.id }}">
-        Ver histórico completo
-    </a>
-
-    {% if usuario.role == 'admin' %}
-        <a href="/produtos/{{ produto.id }}/editar">Editar</a>
+    {% if request.query_params.get('editado') == 'ok' %}
+    <div class="alert alert-success">
+        <i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+        <span>Produto atualizado com sucesso!</span>
+    </div>
     {% endif %}
 
-    <a href="/produtos">← Voltar</a>
-</body>
-</html>
+    <div class="product-detail-card">
+        <!-- Header -->
+        <div class="page-header" style="margin-bottom: 24px;">
+            <div class="header-info">
+                <a href="/produtos" class="btn-back" title="Voltar aos produtos">
+                    <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+                </a>
+                <div class="header-icon">
+                    <i data-lucide="package" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="title-area">
+                    <h2>Detalhes do Produto</h2>
+                    <p>Informações de cadastro e ações rápidas de movimentação</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero: Imagem + Info Principal -->
+        <div class="product-detail-hero">
+            <div class="product-image-large">
+                {% if produto.imagem_path %}
+                <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}">
+                {% else %}
+                <i data-lucide="package"></i>
+                {% endif %}
+            </div>
+
+            <div class="product-main-info">
+                <span class="category-tag">
+                    <i data-lucide="tag" style="width: 14px; height: 14px;"></i>
+                    {{ produto.categoria.nome if produto.categoria else "Sem Categoria" }}
+                </span>
+
+                <h1 class="product-title">{{ produto.nome }}</h1>
+
+                <!-- Grid de Valores e Estoque -->
+                <div class="stats-grid" style="margin-bottom: 0;">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i data-lucide="dollar-sign" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Preço Unitário</span>
+                            <span class="stat-value">R$ {{ "%.2f"|format(produto.preco)|replace('.', ',') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i data-lucide="archive" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Estoque Atual</span>
+                            <span class="stat-value">{{ produto.estoque_atual }} un.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Ações Rápidas -->
+        <div class="product-actions-bar">
+            <a href="/movimentacoes/nova?produto_id={{ produto.id }}" class="btn-primary">
+                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                Registrar movimentação
+            </a>
+
+            <a href="/movimentacoes/produto/{{ produto.id }}" class="btn-secondary">
+                <i data-lucide="history" style="width: 18px; height: 18px;"></i>
+                Ver histórico completo
+            </a>
+
+            {% if usuario and usuario.role == 'admin' %}
+            <a href="/produtos/{{ produto.id }}/editar" class="btn-secondary">
+                <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
+                Editar produto
+            </a>
+            {% endif %}
+
+            <a href="/produtos" class="btn-secondary">
+                <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+                Voltar aos produtos
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

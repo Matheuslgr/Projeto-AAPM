@@ -12,7 +12,8 @@ app/static/
 │   ├── home.css         # Estilo do PDV (carrinho, itens)
 │   ├── usuarios.css     # Gestão de usuários
 │   ├── painel.css       # Painel administrativo
-│   └── produtos.css     # Gestão de produtos (form + lista)
+│   ├── produtos.css     # Gestão de produtos (form + lista)
+│   └── movimentacoes.css # Gestão de movimentações de estoque
 │
 └── js/                  # JavaScript específico por página
     └── home.js          # Lógica do PDV (carrinho, filtros, busca)
@@ -43,6 +44,11 @@ app/templates/
 ├── categorias/
 │   ├── index.html       # Listagem de categorias
 │   └── form.html        # Formulário de criar/editar categoria
+│
+├── movimentacoes/
+│   ├── index.html       # Histórico geral de movimentações
+│   ├── form.html        # Registro de movimentação (entrada/saída)
+│   └── historico.html   # Histórico específico de um produto
 │
 └── painel/
     └── index.html       # Painel administrativo
