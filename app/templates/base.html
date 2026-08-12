@@ -4,7 +4,6 @@
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
@@ -37,14 +36,14 @@
                 <span>AAPM PDV</span>
             </div>
 
-            <!-- resto do menu -->
-
             <!-- Menu de Abas -->
             <nav class="main-nav">
+
                 <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
                     <i data-lucide="shopping-cart"></i>
                     <span>PDV</span>
                 </a>
+
                 <a href="#" class="nav-item">
                     <i data-lucide="history"></i>
                     <span>Histórico</span>
@@ -55,6 +54,12 @@
                 <a href="/produtos" class="nav-item {% if '/produtos' in request.url.path %}active{% endif %}">
                     <i data-lucide="package"></i>
                     <span>Produtos</span>
+                </a>
+
+                <!-- NOVO: MOVIMENTAÇÕES -->
+                <a href="/movimentacoes" class="nav-item {% if '/movimentacoes' in request.url.path %}active{% endif %}">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Movimentações</span>
                 </a>
 
                 <a href="/categorias" class="nav-item {% if '/categorias' in request.url.path %}active{% endif %}">
@@ -76,6 +81,7 @@
                     <i data-lucide="users"></i>
                     <span>Usuários</span>
                 </a>
+
                 {% endif %}
 
             </nav>
@@ -83,30 +89,42 @@
         </div>
 
         <div class="header-right">
+
             <!-- Usuário Logado -->
             <div class="user-profile">
+
                 <div class="user-info">
-                    <span class="user-name">{{ usuario.nome if usuario else 'Administrador' }}</span>
-                    <span class="user-role">{{ usuario.role|capitalize if usuario else 'Admin' }}</span>
+                    <span class="user-name">
+                        {{ usuario.nome if usuario else 'Administrador' }}
+                    </span>
+
+                    <span class="user-role">
+                        {{ usuario.role|capitalize if usuario else 'Admin' }}
+                    </span>
                 </div>
+
                 <div class="user-avatar">
                     {{ (usuario.nome[0]|upper) if usuario else 'A' }}
                 </div>
+
             </div>
 
             <!-- Logout -->
             <a href="/auth/logout" class="logout-btn" title="Sair">
                 <i data-lucide="log-out"></i>
             </a>
+
         </div>
+
     </header>
 
     <!-- CONTEÚDO -->
     <main class="page-container">
+
         {% block content %}
         {% endblock %}
-    </main>
 
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -116,5 +134,6 @@
 
     {% block scripts %}
     {% endblock %}
+
 </body>
 </html>
