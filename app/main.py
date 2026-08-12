@@ -9,6 +9,7 @@ from app.controllers import usuario_controller
 from app.controllers import categoria_controller
 from app.controllers import produto_controller
 from app.controllers import armario_controller
+from app.controllers import movimentacao_controller
 
 app = FastAPI(title="Projeto AAPM")
 
@@ -21,6 +22,7 @@ app.include_router(usuario_controller.router)
 app.include_router(categoria_controller.router)
 app.include_router(produto_controller.router)
 app.include_router(armario_controller.router)
+app.include_router(movimentacao_controller.router)
 
 from sqlalchemy.orm import Session
 from app.database import get_db

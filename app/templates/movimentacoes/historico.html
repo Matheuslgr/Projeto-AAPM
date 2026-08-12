@@ -1,0 +1,78 @@
+<!-- templates/movimentacoes/historico.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico — {{ produto.nome }}</title>
+</head>
+<body>
+    <h1>Histórico — {{ produto.nome }}</h1>
+
+    <!-- Resumo do produto -->
+    <table border="1" cellpadding="8">
+        <tr>
+            <td><strong>Estoque atual</strong></td>
+            <td>{{ produto.estoque_atual }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total de entradas</strong></td>
+            <td style="color:green">+ {{ total_entradas }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total de saídas</strong></td>
+            <td style="color:red">- {{ total_saidas }}</td>
+        </tr>
+    </table>
+
+    <br>
+    <a href="/movimentacoes/nova?produto_id={{ produto.id }}">
+        + Registrar movimentação
+    </a>
+
+    <!-- Histórico de movimentações -->
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Preço unit.</th>
+                <th>Total</th>
+                <th>Observação</th>
+                <th>Registrado por</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimentacoes %}
+            <tr>
+                <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if m.tipo.value == 'entrada' %}
+                        <span style="color:green">▲ Entrada</span>
+                    {% else %}
+                        <span style="color:red">▼ Saída</span>
+                    {% endif %}
+                </td>
+                <td>{{ m.quantidade }}</td>
+                <td>R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
+                <td>R$ {{ "%.2f"|format(m.valor_total) }}</td>
+                <td>{{ m.observacao or "—" }}</td>
+                <td>{{ m.usuario.nome if m.usuario else "—" }}</td>
+            </tr>
+            {% endfor %}
+
+            {% if not movimentacoes %}
+            <tr>
+                <td colspan="7" style="text-align:center">
+                    Nenhuma movimentação registrada.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <p>
+        <a href="/produtos/{{ produto.id }}">← Voltar ao produto</a>
+    </p>
+</body>
+</html>
