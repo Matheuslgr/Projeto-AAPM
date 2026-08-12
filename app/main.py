@@ -10,6 +10,7 @@ from app.controllers import categoria_controller
 from app.controllers import produto_controller
 from app.controllers import armario_controller
 from app.controllers import movimentacao_controller
+from app.controllers import painel_controller
 
 app = FastAPI(title="Projeto AAPM")
 
@@ -23,6 +24,7 @@ app.include_router(categoria_controller.router)
 app.include_router(produto_controller.router)
 app.include_router(armario_controller.router)
 app.include_router(movimentacao_controller.router)
+app.include_router(painel_controller.router)
 
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -64,16 +66,6 @@ def tela_inicial(
         }
     )
 
-@app.get("/painel", response_class=HTMLResponse)
-async def painel(
-    request: Request,
-    admin = Depends(get_admin)
-):
-    return templates.TemplateResponse(
-        request,
-        "painel/index.html",
-        {"request": request, "usuario": admin}
-    )
 
 
 # Tratamento customizado para erros HTTP (401 / 403)

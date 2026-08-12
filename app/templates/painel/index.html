@@ -3,57 +3,411 @@
 {% block title %}Painel Administrativo — AAPM PDV{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="/static/css/painel.css">
+<link rel="stylesheet" href="/static/css/painel.css?v=4">
 {% endblock %}
 
 {% block content %}
-
 <div class="page-wrapper">
-    
-    <div class="page-header">
-        <h2>Painel Administrativo</h2>
-    </div>
 
-    <!-- Cards Row -->
-    <div class="dashboard-cards">
-        <div class="stat-card">
-            <div class="stat-header">
-                <i data-lucide="shopping-cart" class="stat-icon color-blue"></i>
-                <span>Vendas Hoje</span>
+    <!-- Header do Painel -->
+    <div class="painel-header">
+        <div class="painel-title-box">
+            <div class="painel-title-icon">
+                <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
             </div>
-            <div class="stat-value">0</div>
+            <div class="painel-title-text">
+                <h2>Painel Administrativo</h2>
+                <p>{{ data_atual_str }}</p>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-header">
-                <i data-lucide="dollar-sign" class="stat-icon color-green"></i>
-                <span>Total Hoje</span>
-            </div>
-            <div class="stat-value">R$ 0,00</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-header">
-                <i data-lucide="trending-up" class="stat-icon color-orange"></i>
-                <span>Total Geral</span>
-            </div>
-            <div class="stat-value">R$ 0,00</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-header">
-                <i data-lucide="bar-chart-2" class="stat-icon color-purple"></i>
-                <span>Total Vendas</span>
-            </div>
-            <div class="stat-value">0</div>
+        <div class="realtime-badge">
+            <i data-lucide="refresh-cw"></i>
+            <span>Atualizado agora • dados em tempo real</span>
         </div>
     </div>
 
-    <!-- Produtos Mais Vendidos -->
-    <div class="bestsellers-section">
-        <h3 class="section-title">Produtos Mais Vendidos</h3>
-        <p class="empty-state">Nenhuma venda registrada ainda</p>
+    <!-- Row 1: KPI Cards (Dados 100% Reais do Banco) -->
+    <div class="kpi-grid">
+
+        <!-- Card 1: Total Hoje / Faturamento Hoje -->
+        <div class="kpi-card accent-green">
+            <div class="kpi-header">
+                <span class="kpi-label">FATURAMENTO HOJE / TOTAL HOJE</span>
+                <div class="kpi-icon-badge green">
+                    <i data-lucide="dollar-sign" style="width: 18px; height: 18px;"></i>
+                </div>
+            </div>
+            <div class="kpi-value">R$ {{ "%.2f"|format(total_hoje)|replace('.', ',') }}</div>
+            <div class="kpi-subtext">
+                <span>Vendas de hoje: {{ vendas_hoje }}</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Total Geral / Ticket Médio -->
+        <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+                <span class="kpi-label">TICKET MÉDIO / TOTAL GERAL</span>
+                <div class="kpi-icon-badge blue">
+                    <i data-lucide="credit-card" style="width: 18px; height: 18px;"></i>
+                </div>
+            </div>
+            <div class="kpi-value">R$ {{ "%.2f"|format(ticket_medio)|replace('.', ',') }}</div>
+            <div class="kpi-subtext">
+                <span>Total Geral: R$ {{ "%.2f"|format(total_geral)|replace('.', ',') }}</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Vendas Hoje -->
+        <div class="kpi-card accent-orange">
+            <div class="kpi-header">
+                <span class="kpi-label">VENDAS HOJE</span>
+                <div class="kpi-icon-badge orange">
+                    <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
+                </div>
+            </div>
+            <div class="kpi-value">{{ vendas_hoje }}</div>
+            <div class="kpi-subtext">
+                <span>{{ pct_socio }}% de associados (geral)</span>
+            </div>
+        </div>
+
+        <!-- Card 4: Total Vendas / Armários Ocupados -->
+        <div class="kpi-card accent-purple">
+            <div class="kpi-header">
+                <span class="kpi-label">ARMÁRIOS OCUPADOS / TOTAL VENDAS</span>
+                <div class="kpi-icon-badge purple">
+                    <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                </div>
+            </div>
+            <div class="kpi-value">{{ armarios_ocupados }} / {{ armarios_total if armarios_total > 0 else 0 }}</div>
+            <div class="kpi-subtext">
+                <span>{{ armarios_pct }}% de ocupação ({{ total_vendas }} vendas registradas)</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Row 2: Vendas 7 dias & Formas de Pagamento -->
+    <div class="grid-two-cols">
+        <!-- Gráfico Vendas 7 Dias -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Vendas — últimos 7 dias</h3>
+                    <p>Faturamento diário (R$)</p>
+                </div>
+                <div class="panel-icon-btn">
+                    <i data-lucide="bar-chart-2" style="width: 16px; height: 16px;"></i>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartVendas7Dias"></canvas>
+            </div>
+        </div>
+
+        <!-- Formas de Pagamento -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Formas de Pagamento</h3>
+                    <p>Distribuição total</p>
+                </div>
+            </div>
+
+            {% if total_geral > 0 or total_pag_conhecido > 0 %}
+            <div class="payment-donut-wrapper">
+                <canvas id="chartPagamentos"></canvas>
+                <div class="payment-center-label">
+                    <span class="center-sub">Total</span>
+                    <span class="center-val">R$ {{ "%.2f"|format(total_geral)|replace('.', ',') }}</span>
+                </div>
+            </div>
+
+            <div class="payment-legend-list">
+                <div class="payment-legend-item">
+                    <span class="legend-dot green"></span>
+                    <span class="legend-name">Dinheiro</span>
+                    <span class="legend-pct">{{ pct_dinheiro }}%</span>
+                    <span class="legend-val">R$ {{ "%.2f"|format(val_dinheiro)|replace('.', ',') }}</span>
+                </div>
+
+                <div class="payment-legend-item">
+                    <span class="legend-dot blue"></span>
+                    <span class="legend-name">Cartão</span>
+                    <span class="legend-pct">{{ pct_cartao }}%</span>
+                    <span class="legend-val">R$ {{ "%.2f"|format(val_cartao)|replace('.', ',') }}</span>
+                </div>
+
+                <div class="payment-legend-item">
+                    <span class="legend-dot orange"></span>
+                    <span class="legend-name">PIX</span>
+                    <span class="legend-pct">{{ pct_pix }}%</span>
+                    <span class="legend-val">R$ {{ "%.2f"|format(val_pix)|replace('.', ',') }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state-box">
+                <i data-lucide="inbox"></i>
+                <p>Sem dados de pagamento ainda</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Row 3: Top 5 Produtos & Estoque Baixo -->
+    <div class="grid-two-cols">
+        <!-- Top 5 Produtos -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Top 5 Produtos</h3>
+                    <p>Mais vendidos no período</p>
+                </div>
+            </div>
+
+            {% if top_produtos %}
+            <div class="top-products-container">
+                {% for p in top_produtos %}
+                <div class="top-product-row">
+                    <div class="top-product-header">
+                        <div class="rank-circle rank-{{ loop.index }}">{{ loop.index }}</div>
+                        <span class="product-name-text">{{ p.nome }}</span>
+                        <span class="product-qtd-text">{{ p.total_qtd }} un</span>
+                        <span class="product-valor-text">R$ {{ "%.2f"|format(p.total_valor)|replace('.', ',') }}</span>
+                    </div>
+                    <div class="product-progress-bg">
+                        <div class="product-progress-fill" style="width: {{ p.pct }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state-box">
+                <i data-lucide="shopping-bag"></i>
+                <p>Nenhuma venda registrada ainda</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Estoque Baixo -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Estoque Baixo</h3>
+                    <p>Produtos com ≤ 5 unidades</p>
+                </div>
+                <div class="panel-icon-btn" style="color: #ff7a28; background: #fff7ed; border-color: #ffedd5;">
+                    <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                </div>
+            </div>
+
+            {% if produtos_estoque_baixo %}
+            <div class="low-stock-list">
+                {% for p in produtos_estoque_baixo %}
+                <div class="low-stock-item">
+                    <span class="low-stock-name">{{ p.nome }}</span>
+                    <span class="low-stock-badge">{{ p.estoque_atual }} un.</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state-box" style="color: #16a34a;">
+                <i data-lucide="check-circle" style="color: #16a34a;"></i>
+                <p style="font-weight: 600;">Tudo em dia ✓</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Row 4: Horários de Pico & Associados/Usuários -->
+    <div class="grid-two-cols">
+        <!-- Horários de Pico -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Horários de Pico</h3>
+                    <p>Nº de vendas por hora</p>
+                </div>
+                <div class="panel-icon-btn">
+                    <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartHorariosPico"></canvas>
+            </div>
+        </div>
+
+        <!-- Associados & Usuários -->
+        <div class="dashboard-panel-card">
+            <div class="panel-header-row">
+                <div class="panel-title-area">
+                    <h3>Associados</h3>
+                    <p>% de vendas com preço de sócio</p>
+                </div>
+            </div>
+
+            <div class="donut-box">
+                <div style="width: 140px; height: 140px; position: relative;">
+                    <canvas id="chartAssociados"></canvas>
+                    <div class="donut-center-text">{{ pct_socio }}%</div>
+                </div>
+            </div>
+
+            <div class="user-active-bar">
+                <div class="user-active-icon">
+                    <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div>
+                    <strong>{{ usuarios_ativos_count }} usuários ativos</strong>
+                    <span>operadores no sistema</span>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // 1. Gráfico de Vendas — últimos 7 dias (Dados reais SQL)
+        const ctxVendas = document.getElementById('chartVendas7Dias').getContext('2d');
+        const gradientVendas = ctxVendas.createLinearGradient(0, 0, 0, 220);
+        gradientVendas.addColorStop(0, 'rgba(255, 122, 40, 0.2)');
+        gradientVendas.addColorStop(1, 'rgba(14, 62, 179, 0.01)');
+
+        new Chart(ctxVendas, {
+            type: 'line',
+            data: {
+                labels: {{ vendas_7_dias_labels | tojson }},
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: {{ vendas_7_dias_valores | tojson }},
+                    borderColor: '#ff7a28',
+                    borderWidth: 3,
+                    backgroundColor: gradientVendas,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#0e3eb3',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11 }, color: '#64748b' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: {
+                            font: { family: 'Inter', size: 11 },
+                            color: '#64748b',
+                            callback: function(val) { return val; }
+                        }
+                    }
+                }
+            }
+        });
+
+        {% if total_geral > 0 or total_pag_conhecido > 0 %}
+        // 2. Gráfico Donut de Formas de Pagamento (Valores reais SQL)
+        const ctxPag = document.getElementById('chartPagamentos').getContext('2d');
+        new Chart(ctxPag, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dinheiro', 'Cartão', 'PIX', 'Outros'],
+                datasets: [{
+                    data: [{{ pct_dinheiro }}, {{ pct_cartao }}, {{ pct_pix }}, {{ pct_outros }}],
+                    backgroundColor: ['#10b981', '#0e3eb3', '#ff7a28', '#94a3b8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+        {% endif %}
+
+        // 3. Gráfico de Horários de Pico (Valores reais SQL)
+        const ctxHorarios = document.getElementById('chartHorariosPico').getContext('2d');
+        new Chart(ctxHorarios, {
+            type: 'bar',
+            data: {
+                labels: {{ horas_labels | tojson }},
+                datasets: [{
+                    label: 'Vendas',
+                    data: {{ vendas_por_hora_valores | tojson }},
+                    backgroundColor: '#ff7a28',
+                    borderRadius: 6,
+                    barThickness: 24
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 10 }, color: '#64748b' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { family: 'Inter', size: 11 }, color: '#64748b' },
+                        grid: { color: '#f1f5f9' }
+                    }
+                }
+            }
+        });
+
+        // 4. Gráfico Donut de Associados (Dados reais SQL)
+        const ctxAssociados = document.getElementById('chartAssociados').getContext('2d');
+        new Chart(ctxAssociados, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sócio', 'Não Sócio'],
+                datasets: [{
+                    data: [{{ pct_socio }}, {{ 100 - pct_socio }}],
+                    backgroundColor: ['#ff7a28', '#e2e8f0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '78%',
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+    });
+</script>
 {% endblock %}
