@@ -19,7 +19,7 @@
                 </div>
                 <div class="title-area">
                     <h2>Gestão de Clientes</h2>
-                    <p>Cadastre e gerencie clientes e alunos associados (10% de desconto)</p>
+                    <p>Cadastre e gerencie clientes e alunos associados AAPM</p>
                 </div>
             </div>
             <a href="/clientes/novo" class="btn-primary">
@@ -78,19 +78,29 @@
                         </div>
                     </td>
                     <td>
-                        <span style="font-family: monospace; font-weight:600; color: var(--text-primary);">
-                            {{ c.matricula if c.matricula else "—" }}
+                        {% if c.matricula %}
+                        <span class="matricula-badge">
+                            <i data-lucide="hash" style="width:12px;height:12px;opacity:0.6;"></i>
+                            {{ c.matricula }}
                         </span>
+                        {% else %}
+                        <span class="matricula-empty">—</span>
+                        {% endif %}
                     </td>
-                    <td>{{ c.telefone if c.telefone else "—" }}</td>
+                    <td>
+                        <span class="telefone-text">{{ c.telefone if c.telefone else "—" }}</span>
+                    </td>
                     <td>
                         {% if c.is_associado %}
                         <span class="badge-associado-table">
-                            <i data-lucide="check" style="width:14px;height:14px;"></i>
-                            Sim (10% desc.)
+                            <i data-lucide="check-circle-2" style="width:14px;height:14px;"></i>
+                            Associado
                         </span>
                         {% else %}
-                        <span class="badge-nao-associado">Não</span>
+                        <span class="badge-nao-associado">
+                            <i data-lucide="minus-circle" style="width:14px;height:14px;opacity:0.6;"></i>
+                            Não Associado
+                        </span>
                         {% endif %}
                     </td>
                     <td>

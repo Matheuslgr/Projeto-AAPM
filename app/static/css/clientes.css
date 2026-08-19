@@ -184,28 +184,56 @@
     margin-top: 2px;
 }
 
+.matricula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+}
+
+.matricula-empty {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.telefone-text {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+}
+
 .badge-associado-table {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background-color: #dcfce7;
-    color: #166534;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
     font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
 }
 
 .badge-nao-associado {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background-color: #f1f5f9;
-    color: var(--text-muted);
+    background-color: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
     font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 6px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
 }
 
 .status-text.ativo {
