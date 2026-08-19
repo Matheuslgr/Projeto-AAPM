@@ -1,0 +1,115 @@
+/* ============================================================================
+   COMPROVANTE.CSS - Estilos do comprovante/cupom fiscal de venda
+   ============================================================================ */
+
+body {
+    font-family: 'Courier New', monospace;
+    max-width: 400px;
+    margin: 40px auto;
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+.cupom {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 28px;
+}
+
+.titulo {
+    text-align: center;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.subtitulo {
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+.linha-sep {
+    border: none;
+    border-top: 1px dashed #e2e8f0;
+    margin: 14px 0;
+}
+
+.item-linha {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.item-desc {
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+.total-linha {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #64748b;
+}
+
+.total-final {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 10px;
+}
+
+.desc-linha {
+    color: #16a34a;
+}
+
+.btn {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.btn-print {
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+}
+
+.btn-nova {
+    background: #1e293b;
+    color: #fff;
+}
+
+.btn-hist {
+    background: #f1f5f9;
+    color: #1e293b;
+    margin-top: 8px;
+}
+
+@media print {
+    .btn, button, a {
+        display: none !important;
+    }
+    body {
+        margin: 0;
+        background: #fff;
+    }
+    .cupom {
+        border: none;
+        padding: 0;
+    }
+}

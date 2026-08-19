@@ -53,14 +53,38 @@
                 <i data-lucide="shopping-bag"></i>
                 <span>Carrinho</span>
             </h2>
-            
-            <!-- Toggle Cliente -->
-            <div class="client-association">
-                <span>Cliente não associado</span>
-                <label class="switch">
-                    <input type="checkbox" id="client-toggle">
-                    <span class="slider"></span>
-                </label>
+        </div>
+
+        <!-- Toggle Cliente Associado -->
+        <div class="client-association">
+            <span id="client-association-label">Cliente não associado</span>
+            <label class="switch">
+                <input type="checkbox" id="client-toggle" onchange="toggleAssociadoManual(this)">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Seleção de cliente -->
+        <div class="cliente-section">
+            <label class="cliente-label" for="select-cliente">Cliente</label>
+            <select class="cliente-select"
+                    id="select-cliente"
+                    onchange="atualizarCliente(this)">
+                <option value="0" data-associado="false">
+                    Sem identificação (sem desconto)
+                </option>
+                {% for c in clientes %}
+                <option value="{{ c.id }}"
+                        data-associado="{{ 'true' if c.is_associado else 'false' }}">
+                    {{ c.nome }}
+                    {% if c.matricula %}({{ c.matricula }}){% endif %}
+                    {% if c.is_associado %} — ASSOCIADO{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+
+            <div class="desconto-badge" id="badge-desconto" style="display:none">
+                ✓ {{ desconto_associado|int if desconto_associado is defined else 10 }}% de desconto aplicado
             </div>
         </div>
 
@@ -75,20 +99,45 @@
 
             <!-- Lista de itens (inicia escondida) -->
             <ul class="cart-items-list" id="cart-items-list" style="display: none;">
-                <!-- Preenchido dinamicamente -->
+                <!-- Preenchido dinamicamente por JS -->
             </ul>
 
         </div>
 
         <!-- Rodapé do Carrinho -->
         <div class="cart-footer">
-            <div class="cart-total-row">
-                <span class="total-label">Total</span>
-                <span class="total-amount" id="cart-total">R$ 0,00</span>
+            <div class="totais" id="totais" style="display:none">
+                <div class="total-linha">
+                    <span>Subtotal</span>
+                    <span id="val-subtotal">R$ 0,00</span>
+                </div>
+                <div class="total-linha desconto" id="linha-desconto" style="display:none">
+                    <span id="label-desconto">Desconto (0%)</span>
+                    <span id="val-desconto">— R$ 0,00</span>
+                </div>
+                <div class="total-linha final">
+                    <span>Total</span>
+                    <span id="val-total">R$ 0,00</span>
+                </div>
             </div>
-            <button class="checkout-btn" id="checkout-btn" disabled>
-                Finalizar Venda
-            </button>
+
+            <textarea class="obs-input"
+                      id="obs-input"
+                      rows="2"
+                      placeholder="Observação (opcional)..."></textarea>
+
+            <form id="form-venda" action="/pdv/finalizar" method="post">
+                <input type="hidden" name="carrinho_json" id="input-carrinho">
+                <input type="hidden" name="cliente_id"   id="input-cliente-id" value="0">
+                <input type="hidden" name="observacao"   id="input-obs">
+                <button class="checkout-btn"
+                        id="checkout-btn"
+                        type="button"
+                        disabled
+                        onclick="finalizarVenda()">
+                    Finalizar venda
+                </button>
+            </form>
         </div>
 
     </aside>
@@ -97,19 +146,23 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Dados injetados do Python/Banco de Dados -->
-<script>
-    const productsData = [
+<!-- Dados injetados do Python/Banco de Dados em formato JSON limpo -->
+<script id="pdv-data" type="application/json">
+{
+    "desconto_associado": {{ desconto_associado if desconto_associado is defined else 10.0 }},
+    "produtos": [
         {% for p in produtos %}
         { 
-            id: {{ p.id }}, 
-            name: "{{ p.nome }}", 
-            category: "{{ p.categoria.nome if p.categoria else 'Sem Categoria' }}", 
-            price: {{ p.preco }},
-            imagem: "{{ p.imagem_url if p.imagem_url else '' }}"
+            "id": {{ p.id }}, 
+            "name": {{ p.nome | tojson }}, 
+            "category": {{ (p.categoria.nome if p.categoria else 'Sem Categoria') | tojson }}, 
+            "price": {{ p.preco }},
+            "imagem": {{ (p.imagem_url if p.imagem_url else '') | tojson }},
+            "estoque_max": {{ p.estoque_atual }}
         }{% if not loop.last %},{% endif %}
         {% endfor %}
-    ];
+    ]
+}
 </script>
 <script src="/static/js/home.js"></script>
 {% endblock %}

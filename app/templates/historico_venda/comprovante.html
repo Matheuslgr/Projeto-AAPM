@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprovante #{{ venda.id }} — AAPM SENAI</title>
+    <link rel="stylesheet" href="/static/css/comprovante.css">
+</head>
+<body>
+    <div class="cupom">
+        <div class="titulo">AAPM SENAI</div>
+        <div class="subtitulo">
+            Venda #{{ venda.id }} —
+            {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+        <hr class="linha-sep">
+
+        {% if venda.cliente %}
+        <div class="item-linha">
+            <span>Cliente</span>
+            <span>{{ venda.cliente.nome }}</span>
+        </div>
+        {% if venda.cliente.is_associado %}
+        <div class="item-linha desc-linha">
+            <span>Associado</span>
+            <span>✓ {{ venda.desconto_percentual|int }}% desc.</span>
+        </div>
+        {% endif %}
+        <hr class="linha-sep">
+        {% endif %}
+
+        {% for item in venda.itens %}
+        <div class="item-linha">
+            <span>{{ item.produto_nome }}</span>
+            <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
+        </div>
+        <div class="item-desc">
+            {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
+        </div>
+        {% endfor %}
+
+        <hr class="linha-sep">
+
+        <div class="total-linha">
+            <span>Subtotal</span>
+            <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
+        </div>
+
+        {% if venda.desconto_valor > 0 %}
+        <div class="total-linha desc-linha">
+            <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
+            <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
+        </div>
+        {% endif %}
+
+        <div class="total-final">
+            <span>TOTAL</span>
+            <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+        </div>
+
+        {% if venda.observacao %}
+        <hr class="linha-sep">
+        <div style="font-size:12px; color:#64748b; font-style:italic;">Obs: {{ venda.observacao }}</div>
+        {% endif %}
+    </div>
+
+    <button onclick="window.print()" class="btn btn-print">🖨️ Imprimir Comprovante</button>
+    <a href="/" class="btn btn-nova">+ Nova venda (PDV)</a>
+    <a href="/pdv/historico" class="btn btn-hist">Ver histórico</a>
+</body>
+</html>

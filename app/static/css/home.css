@@ -102,3 +102,100 @@
 .remove-item-btn:hover {
     background-color: #fee2e2;
 }
+
+/* --- Estilos do Carrinho Reformado (Cliente, Desconto, Totais, Observação) --- */
+.cliente-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: #fafafa;
+}
+
+.cliente-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.cliente-select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cliente-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.desconto-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #dcfce7;
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-top: 4px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.totais {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.total-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.total-linha.desconto {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.total-linha.final {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-primary);
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.obs-input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    font-family: inherit;
+}
+
+.obs-input:focus {
+    border-color: var(--accent-color);
+}

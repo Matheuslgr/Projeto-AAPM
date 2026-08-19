@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8">
+<title>{{ "Editar" if editando else "Novo" }} Cliente — AAPM SENAI</title>
+</head>
+<body>
+    <h1>{{ "Editar cliente" if editando else "Novo cliente" }}</h1>
+
+    {% if erro %}<p style="color:red">{{ erro }}</p>{% endif %}
+    {% if request.query_params.get('erro') == 'matricula' %}
+        <p style="color:red">Esta matrícula já está em uso.</p>
+    {% endif %}
+
+    <form action="{{ '/clientes/' + editando.id|string + '/editar' if editando else '/clientes/novo' }}"
+          method="post">
+
+        <label>Nome completo:
+            <input type="text" name="nome" required autofocus
+                   value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
+        </label><br>
+
+        <label>Matrícula SENAI (opcional):
+            <input type="text" name="matricula"
+                   placeholder="Ex: 2024001"
+                   value="{{ editando.matricula if editando else (valores.matricula if valores else '') }}">
+        </label><br>
+
+        <label>Telefone (opcional):
+            <input type="text" name="telefone"
+                   placeholder="Ex: (11) 99999-9999"
+                   value="{{ editando.telefone if editando else (valores.telefone if valores else '') }}">
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="is_associado" value="true"
+                {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
+            É associado AAPM (recebe 10% de desconto)
+        </label><br><br>
+
+        <button type="submit">
+            {{ "Salvar alterações" if editando else "Cadastrar cliente" }}
+        </button>
+        <a href="/clientes">Cancelar</a>
+    </form>
+</body>
+</html>

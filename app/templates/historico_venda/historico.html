@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de Vendas — AAPM PDV{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/historico.css">
+{% endblock %}
+
+{% block content %}
+<div class="historico-container">
+
+    <div class="page-header">
+        <div class="page-title-group">
+            <i data-lucide="history" style="width:28px; height:28px; color: var(--accent-color);"></i>
+            <h1>Histórico de Vendas</h1>
+        </div>
+        <a href="/" class="btn-cupom">
+            <i data-lucide="shopping-bag"></i>
+            <span>Voltar ao PDV</span>
+        </a>
+    </div>
+
+    <div class="vendas-card">
+        <div class="table-responsive">
+            <table class="vendas-table">
+                <thead>
+                    <tr>
+                        <th>Venda</th>
+                        <th>Data e Hora</th>
+                        <th>Cliente</th>
+                        <th>Qtd. Itens</th>
+                        <th>Desconto</th>
+                        <th>Total Final</th>
+                        <th>Operador</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vendas %}
+                    <tr>
+                        <td>
+                            <a href="/pdv/venda/{{ v.id }}" class="venda-id-badge">
+                                #{{ v.id }}
+                            </a>
+                        </td>
+                        <td>{{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}</td>
+                        <td>
+                            {% if v.cliente %}
+                                {{ v.cliente.nome }}
+                                {% if v.cliente.is_associado %}
+                                    <span class="badge-associado">
+                                        <i data-lucide="check" style="width:10px;height:10px;"></i>
+                                        Associado
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge-balcao">Balcão (Não Identificado)</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ v.itens | length }} item(ns)</td>
+                        <td>
+                            {% if v.desconto_percentual > 0 %}
+                                <span style="color:#16a34a; font-weight:600;">
+                                    {{ v.desconto_percentual|int }}%
+                                    (− R$ {{ "%.2f"|format(v.desconto_valor) }})
+                                </span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="valor-liquido">
+                                R$ {{ "%.2f"|format(v.total_liquido) }}
+                            </span>
+                        </td>
+                        <td>{{ v.usuario.nome if v.usuario else "Sistema" }}</td>
+                        <td style="text-align: right;">
+                            <a href="/pdv/venda/{{ v.id }}" class="btn-cupom" title="Ver Comprovante">
+                                <i data-lucide="receipt" style="width:14px;height:14px;"></i>
+                                Comprovante
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    {% if not vendas %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-history">
+                                <i data-lucide="inbox" style="width:40px;height:40px;margin-bottom:8px;"></i>
+                                <p>Nenhuma venda registrada até o momento.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

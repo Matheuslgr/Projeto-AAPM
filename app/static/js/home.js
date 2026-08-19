@@ -1,9 +1,13 @@
-/* ============================================================================
-   HOME.JS - Lógica interativa do PDV
-   ============================================================================ */
+// Carrega os dados passados pelo backend no elemento #pdv-data
+const pdvDataElement = document.getElementById('pdv-data');
+const pdvData = pdvDataElement ? JSON.parse(pdvDataElement.textContent) : { desconto_associado: 10.0, produtos: [] };
 
-// Estado do Carrinho
-let cart = [];
+const DESCONTO_PCT = pdvData.desconto_associado || 10.0;
+const productsData = pdvData.produtos || [];
+
+// Estado do Carrinho e do Cliente
+let carrinho = [];
+let clienteAtual = { id: 0, associado: false };
 
 // Elementos do DOM
 const productsGrid = document.getElementById('products-grid');
@@ -11,7 +15,6 @@ const searchInput = document.getElementById('search-input');
 const categoryButtons = document.querySelectorAll('.category-btn');
 const emptyCartState = document.getElementById('empty-cart-state');
 const cartItemsList = document.getElementById('cart-items-list');
-const cartTotal = document.getElementById('cart-total');
 const checkoutBtn = document.getElementById('checkout-btn');
 
 // Filtros Atuais
@@ -22,6 +25,7 @@ let currentCategory = "all";
  * Renderiza o grid de produtos com base nos filtros atuais
  */
 function renderProducts() {
+    if (!productsGrid) return;
     productsGrid.innerHTML = "";
     
     const filteredProducts = productsData.filter(product => {
@@ -50,7 +54,6 @@ function renderProducts() {
             </div>
         `;
         
-        // Usa tag img apenas se não for o placeholder padrão do backend.
         if (product.imagem && product.imagem !== "None" && product.imagem !== "" && !product.imagem.includes("produto-placeholder.png")) {
             imagemHtml = `
             <img src="${product.imagem}" alt="${product.name}" 
@@ -76,26 +79,32 @@ function renderProducts() {
         productsGrid.appendChild(card);
     });
 
-    // Recriar ícones do Lucide
     lucide.createIcons();
 }
 
 /**
  * Adiciona um produto ao carrinho
- * @param {number} productId - ID do produto
  */
 function addToCart(productId) {
     const product = productsData.find(p => p.id === productId);
     if (!product) return;
 
-    const existingItem = cart.find(item => item.product.id === productId);
+    const existente = carrinho.find(item => item.produto_id === productId);
 
-    if (existingItem) {
-        existingItem.quantity += 1;
+    if (existente) {
+        if (existente.quantidade < existente.estoque_max) {
+            existente.quantidade += 1;
+        } else {
+            alert(`Estoque máximo atingido: ${existente.estoque_max} unidade(s).`);
+            return;
+        }
     } else {
-        cart.push({
-            product: product,
-            quantity: 1
+        carrinho.push({
+            produto_id: product.id,
+            nome: product.name,
+            preco: product.price,
+            quantidade: 1,
+            estoque_max: product.estoque_max || 9999
         });
     }
 
@@ -104,17 +113,21 @@ function addToCart(productId) {
 
 /**
  * Altera a quantidade de um item no carrinho
- * @param {number} productId - ID do produto
- * @param {number} delta - Incremento/Decremento na quantidade
  */
-function changeQuantity(productId, delta) {
-    const item = cart.find(item => item.product.id === productId);
+function alterQtd(productId, delta) {
+    const item = carrinho.find(i => i.produto_id === productId);
     if (!item) return;
 
-    item.quantity += delta;
+    item.quantidade += delta;
 
-    if (item.quantity <= 0) {
-        cart = cart.filter(item => item.product.id !== productId);
+    if (item.quantidade <= 0) {
+        removeFromCart(productId);
+        return;
+    }
+
+    if (item.quantidade > item.estoque_max) {
+        item.quantidade = item.estoque_max;
+        alert(`Estoque máximo disponível: ${item.estoque_max}`);
     }
 
     updateCartUI();
@@ -122,90 +135,196 @@ function changeQuantity(productId, delta) {
 
 /**
  * Remove um item do carrinho
- * @param {number} productId - ID do produto
  */
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.product.id !== productId);
+    carrinho = carrinho.filter(i => i.produto_id !== productId);
     updateCartUI();
 }
 
 /**
- * Atualiza a interface do carrinho (lista de itens e total)
+ * Atualiza cliente selecionado e ativa/desativa automaticamente a chave toggle
  */
-function updateCartUI() {
-    if (cart.length === 0) {
-        emptyCartState.style.display = 'flex';
-        cartItemsList.style.display = 'none';
-        cartTotal.textContent = "R$ 0,00";
-        
-        checkoutBtn.disabled = true;
-        checkoutBtn.classList.remove('active');
-    } else {
-        emptyCartState.style.display = 'none';
-        cartItemsList.style.display = 'flex';
-        
-        cartItemsList.innerHTML = "";
-        let total = 0;
+function atualizarCliente(select) {
+    const opt = select.options[select.selectedIndex];
+    clienteAtual.id = parseInt(opt.value);
+    const isAssociado = opt.dataset.associado === 'true';
 
-        cart.forEach(item => {
-            total += item.product.price * item.quantity;
-            
-            const li = document.createElement('li');
-            li.className = 'cart-item';
-            
-            li.innerHTML = `
-                <div class="cart-item-details">
-                    <span class="cart-item-name">${item.product.name}</span>
-                    <span class="cart-item-price">R$ ${(item.product.price * item.quantity).toFixed(2).replace('.', ',')}</span>
-                </div>
-                <div class="cart-item-actions">
-                    <div class="quantity-control">
-                        <button class="qty-btn" onclick="changeQuantity(${item.product.id}, -1)">
-                            <i data-lucide="minus" style="width:12px;height:12px;"></i>
-                        </button>
-                        <span class="qty-val">${item.quantity}</span>
-                        <button class="qty-btn" onclick="changeQuantity(${item.product.id}, 1)">
-                            <i data-lucide="plus" style="width:12px;height:12px;"></i>
-                        </button>
-                    </div>
-                    <button class="remove-item-btn" onclick="removeFromCart(${item.product.id})">
-                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
-                    </button>
-                </div>
-            `;
-            
-            cartItemsList.appendChild(li);
-        });
+    setAssociadoState(isAssociado);
+}
 
-        cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-        
-        checkoutBtn.disabled = false;
-        checkoutBtn.classList.add('active');
+/**
+ * Evento acionado ao alternar manualmente o switch toggle
+ */
+function toggleAssociadoManual(checkbox) {
+    setAssociadoState(checkbox.checked);
+}
+
+/**
+ * Atualiza o estado visual da chave toggle, badge e recalcula os totais
+ */
+function setAssociadoState(isAssociado) {
+    clienteAtual.associado = isAssociado;
+
+    const toggleBtn = document.getElementById('client-toggle');
+    const toggleLabel = document.getElementById('client-association-label');
+    const badge = document.getElementById('badge-desconto');
+
+    if (toggleBtn) {
+        toggleBtn.checked = isAssociado;
     }
 
+    if (toggleLabel) {
+        toggleLabel.textContent = isAssociado ? "Cliente associado" : "Cliente não associado";
+    }
+
+    if (badge) {
+        badge.style.display = isAssociado ? 'inline-flex' : 'none';
+    }
+
+    renderizarTotais();
+}
+
+/**
+ * Renderiza os totais de Subtotal, Desconto e Total
+ */
+function renderizarTotais() {
+    const subtotal = carrinho.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
+
+    const pctDesconto = typeof DESCONTO_PCT !== 'undefined' ? DESCONTO_PCT : 10.0;
+    const descontoValor = clienteAtual.associado ? subtotal * (pctDesconto / 100) : 0;
+    const total = subtotal - descontoValor;
+
+    const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+
+    const elSubtotal = document.getElementById('val-subtotal');
+    const elTotal = document.getElementById('val-total');
+    const linhaDesc = document.getElementById('linha-desconto');
+    const labelDesc = document.getElementById('label-desconto');
+    const valDesc = document.getElementById('val-desconto');
+
+    if (elSubtotal) elSubtotal.textContent = fmt(subtotal);
+    if (elTotal) elTotal.textContent = fmt(total);
+
+    if (linhaDesc && labelDesc && valDesc) {
+        if (clienteAtual.associado && descontoValor > 0) {
+            linhaDesc.style.display = 'flex';
+            labelDesc.textContent = `Desconto (${pctDesconto}%)`;
+            valDesc.textContent = `− ${fmt(descontoValor)}`;
+        } else {
+            linhaDesc.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * Atualiza a interface completa do carrinho
+ */
+function updateCartUI() {
+    const totais = document.getElementById('totais');
+
+    if (carrinho.length === 0) {
+        if (emptyCartState) emptyCartState.style.display = 'flex';
+        if (cartItemsList) cartItemsList.style.display = 'none';
+        if (totais) totais.style.display = 'none';
+        
+        if (checkoutBtn) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.classList.remove('active');
+        }
+    } else {
+        if (emptyCartState) emptyCartState.style.display = 'none';
+        if (cartItemsList) cartItemsList.style.display = 'flex';
+        if (totais) totais.style.display = 'block';
+
+        if (cartItemsList) {
+            cartItemsList.innerHTML = "";
+
+            carrinho.forEach(item => {
+                const subtotalItem = item.preco * item.quantidade;
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                
+                li.innerHTML = `
+                    <div class="cart-item-details">
+                        <span class="cart-item-name">${item.nome}</span>
+                        <span class="cart-item-price">R$ ${subtotalItem.toFixed(2).replace('.', ',')} (${item.quantidade}x R$ ${item.preco.toFixed(2).replace('.', ',')})</span>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="quantity-control">
+                            <button class="qty-btn" type="button" onclick="alterQtd(${item.produto_id}, -1)">
+                                <i data-lucide="minus" style="width:12px;height:12px;"></i>
+                            </button>
+                            <span class="qty-val">${item.quantidade}</span>
+                            <button class="qty-btn" type="button" onclick="alterQtd(${item.produto_id}, 1)">
+                                <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                            </button>
+                        </div>
+                        <button class="remove-item-btn" type="button" onclick="removeFromCart(${item.produto_id})" title="Remover">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                        </button>
+                    </div>
+                `;
+                
+                cartItemsList.appendChild(li);
+            });
+        }
+
+        if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.classList.add('active');
+        }
+    }
+
+    renderizarTotais();
     lucide.createIcons();
+}
+
+/**
+ * Serializa os itens do carrinho e envia o formulário de venda
+ */
+function finalizarVenda() {
+    if (carrinho.length === 0) return;
+
+    const inputCarrinho = document.getElementById('input-carrinho');
+    const inputClienteId = document.getElementById('input-cliente-id');
+    const inputObs = document.getElementById('input-obs');
+    const obsInput = document.getElementById('obs-input');
+    const formVenda = document.getElementById('form-venda');
+
+    if (!inputCarrinho || !formVenda) return;
+
+    inputCarrinho.value = JSON.stringify(carrinho.map(i => ({
+        produto_id: i.produto_id,
+        nome: i.nome,
+        preco: i.preco,
+        quantidade: i.quantidade
+    })));
+
+    if (inputClienteId) inputClienteId.value = clienteAtual.id;
+    if (inputObs && obsInput) inputObs.value = obsInput.value;
+
+    formVenda.submit();
 }
 
 /**
  * Event Listeners e inicialização
  */
 
-// Evento de busca instantânea (ao digitar)
-searchInput.addEventListener('input', (e) => {
-    currentSearch = e.target.value;
-    renderProducts();
-});
-
-// Mantemos o botão caso o usuário queira clicar
-const searchBtn = document.getElementById('search-btn');
-if (searchBtn) {
-    searchBtn.addEventListener('click', () => {
-        currentSearch = searchInput.value;
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        currentSearch = e.target.value;
         renderProducts();
     });
 }
 
-// Evento de filtro de categoria
+const searchBtn = document.getElementById('search-btn');
+if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+        currentSearch = searchInput ? searchInput.value : "";
+        renderProducts();
+    });
+}
+
 categoryButtons.forEach(button => {
     button.addEventListener('click', () => {
         categoryButtons.forEach(btn => btn.classList.remove('active'));
@@ -216,8 +335,8 @@ categoryButtons.forEach(button => {
     });
 });
 
-// Inicialização quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     renderProducts();
+    updateCartUI();
 });

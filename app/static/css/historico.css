@@ -1,0 +1,137 @@
+/* ============================================================================
+   HISTORICO.CSS - Estilos para a página de histórico de vendas
+   ============================================================================ */
+
+.historico-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title-group h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.vendas-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.vendas-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.vendas-table th {
+    background-color: #f8fafc;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.vendas-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.vendas-table tr:last-child td {
+    border-bottom: none;
+}
+
+.vendas-table tr:hover {
+    background-color: #f1f5f9;
+}
+
+.venda-id-badge {
+    font-family: monospace;
+    font-weight: 700;
+    background-color: #e2e8f0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #0f172a;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.venda-id-badge:hover {
+    background-color: #cbd5e1;
+}
+
+.badge-associado {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #dcfce7;
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+.badge-balcao {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.valor-liquido {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.btn-cupom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-cupom:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+}

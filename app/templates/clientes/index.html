@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Clientes — AAPM SENAI</title></head>
+<body>
+    <h1>Clientes</h1>
+
+    {% if request.query_params.get('criado') == 'ok' %}
+        <p style="color:green">Cliente cadastrado!</p>
+    {% endif %}
+    {% if request.query_params.get('editado') == 'ok' %}
+        <p style="color:green">Cliente atualizado!</p>
+    {% endif %}
+
+    <p>Associados ativos: <strong>{{ total_associados }}</strong></p>
+
+    <form method="get" action="/clientes">
+        <input type="text" name="busca"
+               placeholder="Buscar por nome ou matrícula..."
+               value="{{ busca }}">
+        <label>
+            <input type="checkbox" name="apenas_associados" value="true"
+                {{ 'checked' if apenas_associados }}>
+            Apenas associados
+        </label>
+        <button type="submit">Filtrar</button>
+        {% if busca or apenas_associados %}
+            <a href="/clientes">Limpar</a>
+        {% endif %}
+    </form>
+
+    <a href="/clientes/novo">+ Novo cliente</a>
+
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Matrícula</th>
+                <th>Telefone</th>
+                <th>Associado</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clientes %}
+            <tr>
+                <td>{{ c.nome }}</td>
+                <td>{{ c.matricula or "—" }}</td>
+                <td>{{ c.telefone or "—" }}</td>
+                <td>
+                    {% if c.is_associado %}
+                        <span style="color:green">✓ Sim (10% desc.)</span>
+                    {% else %}
+                        Não
+                    {% endif %}
+                </td>
+                <td>{{ "Ativo" if c.ativo else "Inativo" }}</td>
+                <td>
+                    <a href="/clientes/{{ c.id }}/editar">Editar</a>
+                    <form action="/clientes/{{ c.id }}/toggle-ativo"
+                          method="post" style="display:inline">
+                        <button type="submit">
+                            {{ "Desativar" if c.ativo else "Ativar" }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not clientes %}
+            <tr><td colspan="6" style="text-align:center">Nenhum cliente.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <p><a href="/">← Dashboard</a></p>
+</body>
+</html>

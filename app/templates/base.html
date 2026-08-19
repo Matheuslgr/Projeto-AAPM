@@ -39,17 +39,22 @@
             <!-- Menu de Abas -->
             <nav class="main-nav">
 
-                <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
+                <a href="/" class="nav-item {% if request.url.path == '/' or request.url.path == '/pdv' %}active{% endif %}">
                     <i data-lucide="shopping-cart"></i>
                     <span>PDV</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="/pdv/historico" class="nav-item {% if '/pdv/historico' in request.url.path %}active{% endif %}">
                     <i data-lucide="history"></i>
                     <span>Histórico</span>
                 </a>
 
                 {% if usuario and usuario.role == 'admin' %}
+
+                <a href="/clientes" class="nav-item {% if '/clientes' in request.url.path %}active{% endif %}">
+                    <i data-lucide="user-check"></i>
+                    <span>Clientes</span>
+                </a>
 
                 <a href="/produtos" class="nav-item {% if '/produtos' in request.url.path %}active{% endif %}">
                     <i data-lucide="package"></i>

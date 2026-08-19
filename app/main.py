@@ -11,6 +11,8 @@ from app.controllers import produto_controller
 from app.controllers import armario_controller
 from app.controllers import movimentacao_controller
 from app.controllers import painel_controller
+from app.controllers import pdv_controller
+from app.controllers import cliente_controller
 
 app = FastAPI(title="Projeto AAPM")
 
@@ -25,11 +27,17 @@ app.include_router(produto_controller.router)
 app.include_router(armario_controller.router)
 app.include_router(movimentacao_controller.router)
 app.include_router(painel_controller.router)
+app.include_router(pdv_controller.router)
+app.include_router(cliente_controller.router)
+
 
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
+from app.models.cliente import Cliente
+
+DESCONTO_ASSOCIADO = 10.0
 
 @app.get("/")
 def tela_inicial(
@@ -53,6 +61,7 @@ def tela_inicial(
         .all()
     )
     categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+    clientes = db.query(Cliente).filter(Cliente.ativo == True).order_by(Cliente.nome).all()
 
     #logado - exibir a tela de funcionario
     return templates.TemplateResponse(
@@ -62,7 +71,9 @@ def tela_inicial(
             "request": request, 
             "usuario": usuario,
             "produtos": produtos,
-            "categorias": categorias
+            "categorias": categorias,
+            "clientes": clientes,
+            "desconto_associado": DESCONTO_ASSOCIADO,
         }
     )
 
