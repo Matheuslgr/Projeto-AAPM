@@ -11,6 +11,7 @@ class Produto(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     nome  = Column(String(150), nullable=False, index=True)
     preco = Column(Float, nullable=False, default=0.1)
+    preco_associado = Column(Float, nullable=True)
     estoque_atual = Column(Integer, nullable=False, default=0)
     ativo = Column(Boolean, default=True)
 

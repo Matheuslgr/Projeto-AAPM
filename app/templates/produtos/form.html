@@ -66,7 +66,8 @@
                            class="form-control"
                            step="0.01"
                            min="0"
-                           placeholder="Ex: 14.90">
+                           placeholder="Ex: 14.90"
+                           value="{{ editando.preco_associado if (editando and editando.preco_associado is not none) else (valores.preco_associado if (valores and valores.preco_associado is not none) else '') }}">
                 </div>
             </div>
 

@@ -179,6 +179,7 @@
             "name": {{ p.nome | tojson }}, 
             "category": {{ (p.categoria.nome if p.categoria else 'Sem Categoria') | tojson }}, 
             "price": {{ p.preco }},
+            "preco_associado": {{ p.preco_associado if p.preco_associado is not none else p.preco }},
             "imagem": {{ (p.imagem_url if p.imagem_url else '') | tojson }},
             "estoque_max": {{ p.estoque_atual }}
         }{% if not loop.last %},{% endif %}

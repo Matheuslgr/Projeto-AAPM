@@ -119,7 +119,8 @@
                 <tr>
                     <th>Produto</th>
                     <th>Categoria</th>
-                    <th>Preço</th>
+                    <th>Preço Normal</th>
+                    <th>Preço Associado</th>
                     <th>Estoque</th>
                     <th>Status</th>
                     <th style="text-align: center;">Ações</th>
@@ -147,6 +148,13 @@
                     </td>
                     <td>
                         <strong class="product-price">R$ {{ "%.2f"|format(p.preco)|replace('.', ',') }}</strong>
+                    </td>
+                    <td>
+                        {% if p.preco_associado is not none %}
+                        <span style="color:#16a34a; font-weight:700;">R$ {{ "%.2f"|format(p.preco_associado)|replace('.', ',') }}</span>
+                        {% else %}
+                        <span style="color:var(--text-muted);">—</span>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="product-stock-actions">

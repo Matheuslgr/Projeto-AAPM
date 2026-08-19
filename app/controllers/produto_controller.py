@@ -93,18 +93,18 @@ def form_novo_produto(
 @router.post("/novo")
 async def criar_produto(
     request: Request,
-    nome: str          = Form(...),
-    preco: float       = Form(...),
-    estoque_atual: int = Form(...),
-    categoria_id: int  = Form(0),   # 0 = sem categoria
-    imagem: UploadFile = File(None), # None = campo opcional
-    db: Session        = Depends(get_db),
-    admin              = Depends(get_admin)
+    nome: str                  = Form(...),
+    preco: float               = Form(...),
+    preco_associado: float     = Form(None),
+    estoque_atual: int         = Form(...),
+    categoria_id: int          = Form(0),   # 0 = sem categoria
+    imagem: UploadFile         = File(None), # None = campo opcional
+    db: Session                = Depends(get_db),
+    admin                      = Depends(get_admin)
 ):
     categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     # Verifica duplicidade de nome
-    # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
     if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
         return templates.TemplateResponse(
             request,
@@ -115,7 +115,7 @@ async def criar_produto(
                 "editando":   None,
                 "categorias": categorias,
                 "erro":       "Já existe um produto com este nome.",
-                "valores":    {"nome": nome, "preco": preco,
+                "valores":    {"nome": nome, "preco": preco, "preco_associado": preco_associado,
                                "estoque_atual": estoque_atual,
                                "categoria_id": categoria_id}
             },
@@ -126,11 +126,12 @@ async def criar_produto(
     imagem_path = await _salvar_imagem(imagem)
 
     produto = Produto(
-        nome          = nome,
-        preco         = preco,
-        estoque_atual = estoque_atual,
-        categoria_id  = categoria_id or None,  # 0 vira NULL no banco
-        imagem_path   = imagem_path,
+        nome            = nome,
+        preco           = preco,
+        preco_associado = preco_associado,
+        estoque_atual   = estoque_atual,
+        categoria_id    = categoria_id or None,  # 0 vira NULL no banco
+        imagem_path     = imagem_path,
     )
 
     db.add(produto)
@@ -198,13 +199,14 @@ def form_editar_produto(
 async def editar_produto(
     produto_id: int,
     request: Request,
-    nome: str          = Form(...),
-    preco: float       = Form(...),
-    estoque_atual: int = Form(...),
-    categoria_id: int  = Form(0),
-    imagem: UploadFile = File(None),
-    db: Session        = Depends(get_db),
-    admin              = Depends(get_admin)
+    nome: str                  = Form(...),
+    preco: float               = Form(...),
+    preco_associado: float     = Form(None),
+    estoque_atual: int         = Form(...),
+    categoria_id: int          = Form(0),
+    imagem: UploadFile         = File(None),
+    db: Session                = Depends(get_db),
+    admin                      = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
     categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
@@ -239,10 +241,11 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    editando.nome          = nome
-    editando.preco         = preco
-    editando.estoque_atual = estoque_atual
-    editando.categoria_id  = categoria_id or None
+    editando.nome            = nome
+    editando.preco           = preco
+    editando.preco_associado = preco_associado
+    editando.estoque_atual   = estoque_atual
+    editando.categoria_id    = categoria_id or None
 
     db.commit()
 

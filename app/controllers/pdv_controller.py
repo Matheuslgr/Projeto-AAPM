@@ -89,8 +89,8 @@ def finalizar_venda(
         return RedirectResponse(url="/pdv?erro=vazio", status_code=302)
 
     # Busca o cliente e verifica se é associado
-    cliente             = None
-    desconto_percentual = 0.0
+    cliente = None
+    is_associado = False
 
     if cliente_id:
         cliente = db.query(Cliente).filter(
@@ -99,10 +99,11 @@ def finalizar_venda(
         ).first()
 
         if cliente and cliente.is_associado:
-            desconto_percentual = DESCONTO_ASSOCIADO
+            is_associado = True
 
     # ── Valida estoque e calcula totais ──────────────────────
     total_bruto = 0.0
+    total_liquido = 0.0
     itens_validados = []
 
     for item in itens:
@@ -128,19 +129,26 @@ def finalizar_venda(
                 status_code=302
             )
 
-        subtotal    = produto.preco * qtd
-        total_bruto += subtotal
+        preco_unitario = (
+            produto.preco_associado
+            if (is_associado and produto.preco_associado is not None)
+            else produto.preco
+        )
+
+        subtotal_bruto = produto.preco * qtd
+        subtotal_liquido = preco_unitario * qtd
+
+        total_bruto += subtotal_bruto
+        total_liquido += subtotal_liquido
 
         itens_validados.append({
-            "produto":       produto,
-            "quantidade":    qtd,
-            "preco":         produto.preco,
-            "produto_nome":  produto.nome,
+            "produto":        produto,
+            "quantidade":     qtd,
+            "preco_unitario": preco_unitario,
+            "produto_nome":   produto.nome,
         })
 
-    # ── Calcula desconto e total final
-    desconto_valor = total_bruto * (desconto_percentual / 100)
-    total_liquido  = total_bruto - desconto_valor
+    desconto_percentual = round(((total_bruto - total_liquido) / total_bruto * 100), 1) if total_bruto > 0 else 0.0
 
     # ── Persiste tudo em uma única transação
     venda = Venda(
@@ -160,7 +168,7 @@ def finalizar_venda(
             produto_id     = item["produto"].id,
             produto_nome   = item["produto_nome"],
             quantidade     = item["quantidade"],
-            preco_unitario = item["preco"],
+            preco_unitario = item["preco_unitario"],
         ))
         # Baixa o estoque do produto
         item["produto"].estoque_atual -= item["quantidade"]

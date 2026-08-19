@@ -103,6 +103,7 @@ function addToCart(productId) {
             produto_id: product.id,
             nome: product.name,
             preco: product.price,
+            preco_associado: product.preco_associado !== undefined && product.preco_associado !== null ? product.preco_associado : product.price,
             quantidade: 1,
             estoque_max: product.estoque_max || 9999
         });
@@ -281,9 +282,12 @@ document.addEventListener('click', (e) => {
 function renderizarTotais() {
     const subtotal = carrinho.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
 
-    const pctDesconto = typeof DESCONTO_PCT !== 'undefined' ? DESCONTO_PCT : 10.0;
-    const descontoValor = clienteAtual.associado ? subtotal * (pctDesconto / 100) : 0;
-    const total = subtotal - descontoValor;
+    const totalLiquido = carrinho.reduce((acc, i) => {
+        const unitPrice = clienteAtual.associado ? (i.preco_associado !== undefined ? i.preco_associado : i.preco) : i.preco;
+        return acc + unitPrice * i.quantidade;
+    }, 0);
+
+    const descontoValor = subtotal - totalLiquido;
 
     const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
 
@@ -294,12 +298,12 @@ function renderizarTotais() {
     const valDesc = document.getElementById('val-desconto');
 
     if (elSubtotal) elSubtotal.textContent = fmt(subtotal);
-    if (elTotal) elTotal.textContent = fmt(total);
+    if (elTotal) elTotal.textContent = fmt(totalLiquido);
 
     if (linhaDesc && labelDesc && valDesc) {
         if (clienteAtual.associado && descontoValor > 0) {
             linhaDesc.style.display = 'flex';
-            labelDesc.textContent = `Desconto (${pctDesconto}%)`;
+            labelDesc.textContent = `Desconto Associado`;
             valDesc.textContent = `− ${fmt(descontoValor)}`;
         } else {
             linhaDesc.style.display = 'none';
@@ -331,14 +335,15 @@ function updateCartUI() {
             cartItemsList.innerHTML = "";
 
             carrinho.forEach(item => {
-                const subtotalItem = item.preco * item.quantidade;
+                const unitPrice = clienteAtual.associado ? (item.preco_associado !== undefined ? item.preco_associado : item.preco) : item.preco;
+                const subtotalItem = unitPrice * item.quantidade;
                 const li = document.createElement('li');
                 li.className = 'cart-item';
                 
                 li.innerHTML = `
                     <div class="cart-item-details">
                         <span class="cart-item-name">${item.nome}</span>
-                        <span class="cart-item-price">R$ ${subtotalItem.toFixed(2).replace('.', ',')} (${item.quantidade}x R$ ${item.preco.toFixed(2).replace('.', ',')})</span>
+                        <span class="cart-item-price">R$ ${subtotalItem.toFixed(2).replace('.', ',')} (${item.quantidade}x R$ ${unitPrice.toFixed(2).replace('.', ',')})</span>
                     </div>
                     <div class="cart-item-actions">
                         <div class="quantity-control">
