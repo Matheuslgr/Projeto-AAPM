@@ -103,13 +103,13 @@
     background-color: #fee2e2;
 }
 
-/* --- Estilos do Carrinho Reformado (Cliente, Desconto, Totais, Observação) --- */
+/* --- Seleção de Cliente Pesquisável (Combobox Autocomplete) --- */
 .cliente-section {
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     background-color: #fafafa;
 }
 
@@ -121,21 +121,122 @@
     color: var(--text-muted);
 }
 
-.cliente-select {
+.cliente-combobox {
+    position: relative;
     width: 100%;
-    padding: 8px 12px;
+}
+
+.cliente-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cliente-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.cliente-search-input {
+    width: 100%;
+    padding: 10px 34px 10px 36px;
     font-size: 13px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: #ffffff;
     color: var(--text-primary);
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
 }
 
-.cliente-select:focus {
+.cliente-search-input:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.btn-limpar-cliente {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-limpar-cliente:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.btn-limpar-cliente svg {
+    width: 14px;
+    height: 14px;
+}
+
+.cliente-dropdown-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    animation: fadeIn 0.15s ease;
+}
+
+.cliente-dropdown-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.15s;
+}
+
+.cliente-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.cliente-dropdown-item:hover,
+.cliente-dropdown-item.selected {
+    background-color: #f1f5f9;
+}
+
+.cliente-opt-nome {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.badge-opt-associado {
+    background-color: #dcfce7;
+    color: #166534;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.cliente-dropdown-empty {
+    padding: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 .desconto-badge {
@@ -146,8 +247,8 @@
     color: #15803d;
     font-size: 12px;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
     margin-top: 4px;
     animation: fadeIn 0.2s ease-in-out;
 }
@@ -155,11 +256,11 @@
 .totais {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
-    padding: 12px;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 14px;
     background: #f8fafc;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
 }
 
@@ -177,25 +278,58 @@
 }
 
 .total-linha.final {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 800;
     color: var(--text-primary);
-    padding-top: 6px;
+    padding-top: 8px;
     border-top: 1px dashed var(--border-color);
 }
 
 .obs-input {
     width: 100%;
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     resize: none;
     outline: none;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     font-family: inherit;
+    transition: border-color 0.2s;
 }
 
 .obs-input:focus {
     border-color: var(--accent-color);
+}
+
+/* Estilo do Botão Finalizar Venda */
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background-color: #cbd5e1;
+    color: #94a3b8;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: not-allowed;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.checkout-btn.active {
+    background-color: #111b63;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(17, 27, 99, 0.25);
+}
+
+.checkout-btn.active:hover {
+    background-color: #1f2f98;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(17, 27, 99, 0.35);
+}
+
+.checkout-btn.active:active {
+    transform: translateY(0);
 }

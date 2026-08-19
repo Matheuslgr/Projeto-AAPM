@@ -64,24 +64,35 @@
             </label>
         </div>
 
-        <!-- Seleção de cliente -->
+        <!-- Seleção de cliente pesquisável -->
         <div class="cliente-section">
-            <label class="cliente-label" for="select-cliente">Cliente</label>
-            <select class="cliente-select"
-                    id="select-cliente"
-                    onchange="atualizarCliente(this)">
-                <option value="0" data-associado="false">
-                    Sem identificação (sem desconto)
-                </option>
-                {% for c in clientes %}
-                <option value="{{ c.id }}"
-                        data-associado="{{ 'true' if c.is_associado else 'false' }}">
-                    {{ c.nome }}
-                    {% if c.matricula %}({{ c.matricula }}){% endif %}
-                    {% if c.is_associado %} — ASSOCIADO{% endif %}
-                </option>
-                {% endfor %}
-            </select>
+            <label class="cliente-label" for="cliente-search-input">Cliente</label>
+            
+            <div class="cliente-combobox">
+                <div class="cliente-input-wrapper">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text"
+                           id="cliente-search-input"
+                           class="cliente-search-input"
+                           placeholder="Buscar por nome ou matrícula..."
+                           autocomplete="off"
+                           onfocus="abrirDropdownClientes()"
+                           oninput="filtrarClientes(this.value)">
+                    <button type="button"
+                            id="btn-limpar-cliente"
+                            class="btn-limpar-cliente"
+                            onclick="limparClienteSelecionado()"
+                            title="Limpar seleção"
+                            style="display: none;">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <!-- Lista suspensa de clientes -->
+                <div id="cliente-dropdown-results" class="cliente-dropdown-results" style="display: none;">
+                    <!-- Preenchido dinamicamente por JS -->
+                </div>
+            </div>
 
             <div class="desconto-badge" id="badge-desconto" style="display:none">
                 ✓ {{ desconto_associado|int if desconto_associado is defined else 10 }}% de desconto aplicado
@@ -150,6 +161,17 @@
 <script id="pdv-data" type="application/json">
 {
     "desconto_associado": {{ desconto_associado if desconto_associado is defined else 10.0 }},
+    "clientes": [
+        { "id": 0, "nome": "Sem identificação (sem desconto)", "matricula": "", "is_associado": false },
+        {% for c in clientes %}
+        { 
+            "id": {{ c.id }}, 
+            "nome": {{ c.nome | tojson }}, 
+            "matricula": {{ (c.matricula if c.matricula else '') | tojson }}, 
+            "is_associado": {{ 'true' if c.is_associado else 'false' }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
     "produtos": [
         {% for p in produtos %}
         { 

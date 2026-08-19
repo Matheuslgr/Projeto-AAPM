@@ -141,15 +141,97 @@ function removeFromCart(productId) {
     updateCartUI();
 }
 
-/**
- * Atualiza cliente selecionado e ativa/desativa automaticamente a chave toggle
- */
-function atualizarCliente(select) {
-    const opt = select.options[select.selectedIndex];
-    clienteAtual.id = parseInt(opt.value);
-    const isAssociado = opt.dataset.associado === 'true';
+const clientesData = pdvData.clientes || [
+    { id: 0, nome: "Sem identificação (sem desconto)", matricula: "", is_associado: false }
+];
 
-    setAssociadoState(isAssociado);
+/**
+ * Abre o dropdown de clientes ao focar no campo de busca
+ */
+function abrirDropdownClientes() {
+    const searchInput = document.getElementById('cliente-search-input');
+    filtrarClientes(searchInput ? searchInput.value : '');
+}
+
+/**
+ * Filtra a lista de clientes por nome ou matrícula e renderiza os resultados
+ */
+function filtrarClientes(termo) {
+    const dropdown = document.getElementById('cliente-dropdown-results');
+    if (!dropdown) return;
+
+    const termLower = (termo || '').toLowerCase().trim();
+
+    const filtrados = clientesData.filter(c => {
+        if (!termLower) return true;
+        const nomeMatch = c.nome.toLowerCase().includes(termLower);
+        const matriculaMatch = c.matricula ? c.matricula.toLowerCase().includes(termLower) : false;
+        return nomeMatch || matriculaMatch;
+    });
+
+    dropdown.innerHTML = '';
+
+    if (filtrados.length === 0) {
+        dropdown.innerHTML = `
+            <div class="cliente-dropdown-empty">
+                Nenhum cliente encontrado
+            </div>
+        `;
+    } else {
+        filtrados.forEach(cliente => {
+            const item = document.createElement('div');
+            item.className = `cliente-dropdown-item ${cliente.id === clienteAtual.id ? 'selected' : ''}`;
+            item.onclick = () => selecionarCliente(cliente);
+
+            const isAssociado = cliente.is_associado;
+            const matriculaStr = cliente.matricula ? `(${cliente.matricula})` : '';
+            const badgeHtml = isAssociado ? `<span class="badge-opt-associado">✓ ASSOCIADO</span>` : '';
+
+            item.innerHTML = `
+                <div class="cliente-opt-info">
+                    <span class="cliente-opt-nome">${cliente.nome} ${matriculaStr}</span>
+                </div>
+                ${badgeHtml}
+            `;
+            dropdown.appendChild(item);
+        });
+    }
+
+    dropdown.style.display = 'block';
+    lucide.createIcons();
+}
+
+/**
+ * Seleciona um cliente da lista suspensa
+ */
+function selecionarCliente(cliente) {
+    clienteAtual.id = cliente.id;
+    
+    const searchInput = document.getElementById('cliente-search-input');
+    const btnLimpar = document.getElementById('btn-limpar-cliente');
+    const dropdown = document.getElementById('cliente-dropdown-results');
+
+    if (searchInput) {
+        searchInput.value = cliente.id === 0 ? '' : cliente.nome;
+    }
+
+    if (btnLimpar) {
+        btnLimpar.style.display = cliente.id === 0 ? 'none' : 'flex';
+    }
+
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
+
+    setAssociadoState(cliente.is_associado);
+}
+
+/**
+ * Limpa a seleção do cliente
+ */
+function limparClienteSelecionado() {
+    const clientePadrao = clientesData.find(c => c.id === 0) || { id: 0, is_associado: false };
+    selecionarCliente(clientePadrao);
 }
 
 /**
@@ -183,6 +265,15 @@ function setAssociadoState(isAssociado) {
 
     renderizarTotais();
 }
+
+// Fechar dropdown de clientes ao clicar fora do componente
+document.addEventListener('click', (e) => {
+    const combobox = document.querySelector('.cliente-combobox');
+    const dropdown = document.getElementById('cliente-dropdown-results');
+    if (dropdown && combobox && !combobox.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
 
 /**
  * Renderiza os totais de Subtotal, Desconto e Total
