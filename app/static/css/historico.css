@@ -1,82 +1,130 @@
 /* ============================================================================
-   HISTORICO.CSS - Estilos para a página de histórico de vendas
+   HISTORICO.CSS - Estilos padronizados da página de histórico de vendas
    ============================================================================ */
 
-.historico-container {
-    padding: 24px;
+.page-wrapper {
+    padding: 32px;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.content-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 32px;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+}
+
+.title-area h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.title-area p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.btn-primary {
+    background: #111b63;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #1f2f98;
+}
+
+/* Filtros */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 24px;
 }
 
-.page-title-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
 }
 
-.page-title-group h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.vendas-card {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-}
-
-.table-responsive {
+.search-input-wrapper input {
     width: 100%;
-    overflow-x: auto;
+    padding: 12px 16px 12px 44px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.vendas-table {
+.search-input-wrapper input:focus {
+    border-color: var(--accent-color);
+}
+
+/* Tabela */
+.data-table {
     width: 100%;
     border-collapse: collapse;
+}
+
+.data-table th {
     text-align: left;
-    font-size: 14px;
-}
-
-.vendas-table th {
-    background-color: #f8fafc;
-    color: var(--text-muted);
+    padding: 16px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
+    color: #ffffff;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 14px 18px;
     border-bottom: 1px solid var(--border-color);
+    background: #111b63;
 }
 
-.vendas-table td {
-    padding: 14px 18px;
+.data-table td {
+    padding: 16px;
     border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
-}
-
-.vendas-table tr:last-child td {
-    border-bottom: none;
-}
-
-.vendas-table tr:hover {
-    background-color: #f1f5f9;
+    vertical-align: middle;
 }
 
 .venda-id-badge {
     font-family: monospace;
     font-weight: 700;
     background-color: #e2e8f0;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: 6px;
     color: #0f172a;
     text-decoration: none;
@@ -92,7 +140,7 @@
     align-items: center;
     gap: 4px;
     background-color: #dcfce7;
-    color: #16a34a;
+    color: #166534;
     font-size: 11px;
     font-weight: 700;
     padding: 2px 6px;
@@ -103,23 +151,25 @@
 .badge-balcao {
     color: var(--text-muted);
     font-style: italic;
+    font-size: 13px;
 }
 
 .valor-liquido {
     font-weight: 700;
-    color: var(--text-primary);
+    color: #111111;
+    font-size: 15px;
 }
 
 .btn-cupom {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     background-color: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     color: var(--text-primary);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
@@ -128,10 +178,4 @@
 .btn-cupom:hover {
     background-color: #e2e8f0;
     color: #0f172a;
-}
-
-.empty-history {
-    text-align: center;
-    padding: 48px;
-    color: var(--text-muted);
 }

@@ -1,46 +1,111 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8">
-<title>{{ "Editar" if editando else "Novo" }} Cliente — AAPM SENAI</title>
-</head>
-<body>
-    <h1>{{ "Editar cliente" if editando else "Novo cliente" }}</h1>
+{% extends "base.html" %}
 
-    {% if erro %}<p style="color:red">{{ erro }}</p>{% endif %}
-    {% if request.query_params.get('erro') == 'matricula' %}
-        <p style="color:red">Esta matrícula já está em uso.</p>
-    {% endif %}
+{% block title %}{{ "Editar" if editando else "Novo" }} Cliente — AAPM PDV{% endblock %}
 
-    <form action="{{ '/clientes/' + editando.id|string + '/editar' if editando else '/clientes/novo' }}"
-          method="post">
+{% block styles %}
+<link rel="stylesheet" href="/static/css/clientes.css">
+{% endblock %}
 
-        <label>Nome completo:
-            <input type="text" name="nome" required autofocus
-                   value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
-        </label><br>
+{% block content %}
 
-        <label>Matrícula SENAI (opcional):
-            <input type="text" name="matricula"
-                   placeholder="Ex: 2024001"
-                   value="{{ editando.matricula if editando else (valores.matricula if valores else '') }}">
-        </label><br>
+<div class="page-wrapper">
+    <div class="content-card">
 
-        <label>Telefone (opcional):
-            <input type="text" name="telefone"
-                   placeholder="Ex: (11) 99999-9999"
-                   value="{{ editando.telefone if editando else (valores.telefone if valores else '') }}">
-        </label><br>
+        <!-- Cabeçalho -->
+        <div class="page-header">
+            <div class="header-info">
+                <div class="header-icon">
+                    <i data-lucide="{{ 'user-pen' if editando else 'user-plus' }}"></i>
+                </div>
+                <div class="title-area">
+                    <h2>{{ "Editar Cliente" if editando else "Novo Cliente" }}</h2>
+                    <p>
+                        {% if editando %}
+                            Atualize as informações cadastrais do cliente <strong>{{ editando.nome }}</strong>
+                        {% else %}
+                            Preencha os dados do cliente para cadastro no sistema
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <a href="/clientes" class="btn-back">
+                <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+                Voltar
+            </a>
+        </div>
 
-        <label>
-            <input type="checkbox" name="is_associado" value="true"
-                {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
-            É associado AAPM (recebe 10% de desconto)
-        </label><br><br>
+        <!-- Alertas de Erro -->
+        {% if erro %}
+            <div class="alert alert-danger">{{ erro }}</div>
+        {% endif %}
+        {% if request.query_params.get('erro') == 'matricula' %}
+            <div class="alert alert-danger">Esta matrícula SENAI já está em uso por outro cliente.</div>
+        {% endif %}
 
-        <button type="submit">
-            {{ "Salvar alterações" if editando else "Cadastrar cliente" }}
-        </button>
-        <a href="/clientes">Cancelar</a>
-    </form>
-</body>
-</html>
+        <!-- Formulário -->
+        <form action="{{ '/clientes/' + editando.id|string + '/editar' if editando else '/clientes/novo' }}"
+              method="post" class="client-form">
+
+            <div class="form-grid">
+
+                <!-- Nome completo -->
+                <div class="form-group full-width">
+                    <label class="form-label" for="nome">
+                        <i data-lucide="user" style="width:14px;height:14px;"></i>
+                        Nome completo
+                    </label>
+                    <input id="nome" type="text" name="nome" class="form-input" placeholder="Ex: João da Silva"
+                           value="{{ editando.nome if editando else (valores.nome if valores else '') }}" required autofocus>
+                </div>
+
+                <!-- Matrícula -->
+                <div class="form-group">
+                    <label class="form-label" for="matricula">
+                        <i data-lucide="hash" style="width:14px;height:14px;"></i>
+                        Matrícula SENAI (opcional)
+                    </label>
+                    <input id="matricula" type="text" name="matricula" class="form-input" placeholder="Ex: 2024001"
+                           value="{{ editando.matricula if editando else (valores.matricula if valores else '') }}">
+                </div>
+
+                <!-- Telefone -->
+                <div class="form-group">
+                    <label class="form-label" for="telefone">
+                        <i data-lucide="phone" style="width:14px;height:14px;"></i>
+                        Telefone (opcional)
+                    </label>
+                    <input id="telefone" type="text" name="telefone" class="form-input" placeholder="Ex: (11) 99999-9999"
+                           value="{{ editando.telefone if editando else (valores.telefone if valores else '') }}">
+                </div>
+
+                <!-- Checkbox Associado -->
+                <div class="form-group full-width">
+                    <label class="form-checkbox-card" for="is_associado">
+                        <input type="checkbox" id="is_associado" name="is_associado" value="true"
+                               {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
+                        <div>
+                            <strong style="font-size: 14px; color: var(--text-primary);">É associado AAPM</strong>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                Concede automaticamente 10% de desconto em todas as compras no PDV
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="form-actions">
+                <a href="/clientes" class="btn-cancel">Cancelar</a>
+                <button type="submit" class="btn-submit">
+                    <i data-lucide="{{ 'save' if editando else 'check' }}" style="width:16px;height:16px;"></i>
+                    {{ "Salvar alterações" if editando else "Cadastrar cliente" }}
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

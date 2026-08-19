@@ -1,77 +1,149 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Clientes — AAPM SENAI</title></head>
-<body>
-    <h1>Clientes</h1>
+{% extends "base.html" %}
 
-    {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color:green">Cliente cadastrado!</p>
-    {% endif %}
-    {% if request.query_params.get('editado') == 'ok' %}
-        <p style="color:green">Cliente atualizado!</p>
-    {% endif %}
+{% block title %}Clientes — AAPM PDV{% endblock %}
 
-    <p>Associados ativos: <strong>{{ total_associados }}</strong></p>
+{% block styles %}
+<link rel="stylesheet" href="/static/css/clientes.css">
+{% endblock %}
 
-    <form method="get" action="/clientes">
-        <input type="text" name="busca"
-               placeholder="Buscar por nome ou matrícula..."
-               value="{{ busca }}">
-        <label>
-            <input type="checkbox" name="apenas_associados" value="true"
-                {{ 'checked' if apenas_associados }}>
-            Apenas associados
-        </label>
-        <button type="submit">Filtrar</button>
-        {% if busca or apenas_associados %}
-            <a href="/clientes">Limpar</a>
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="content-card">
+
+        <!-- Cabeçalho -->
+        <div class="page-header">
+            <div class="header-info">
+                <div class="header-icon">
+                    <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="title-area">
+                    <h2>Gestão de Clientes</h2>
+                    <p>Cadastre e gerencie clientes e alunos associados (10% de desconto)</p>
+                </div>
+            </div>
+            <a href="/clientes/novo" class="btn-primary">
+                <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
+                Novo Cliente
+            </a>
+        </div>
+
+        <!-- Mensagens de Alerta -->
+        {% if request.query_params.get('criado') == 'ok' %}
+        <div class="alert alert-success">Cliente cadastrado com sucesso!</div>
         {% endif %}
-    </form>
+        {% if request.query_params.get('editado') == 'ok' %}
+        <div class="alert alert-success">Cliente atualizado com sucesso!</div>
+        {% endif %}
 
-    <a href="/clientes/novo">+ Novo cliente</a>
+        <!-- Barra de Filtros -->
+        <form method="get" action="/clientes" class="filters-bar" id="filterFormClientes">
+            <div class="search-input-wrapper">
+                <input type="text" name="busca" placeholder="Buscar por nome ou matrícula..." value="{{ busca }}" id="busca-cliente"
+                    onkeydown="if(event.key === 'Enter') event.preventDefault();">
+                <button type="submit" class="search-icon-btn" title="Pesquisar">
+                    <i data-lucide="search"></i>
+                </button>
+            </div>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Matrícula</th>
-                <th>Telefone</th>
-                <th>Associado</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in clientes %}
-            <tr>
-                <td>{{ c.nome }}</td>
-                <td>{{ c.matricula or "—" }}</td>
-                <td>{{ c.telefone or "—" }}</td>
-                <td>
-                    {% if c.is_associado %}
-                        <span style="color:green">✓ Sim (10% desc.)</span>
-                    {% else %}
-                        Não
-                    {% endif %}
-                </td>
-                <td>{{ "Ativo" if c.ativo else "Inativo" }}</td>
-                <td>
-                    <a href="/clientes/{{ c.id }}/editar">Editar</a>
-                    <form action="/clientes/{{ c.id }}/toggle-ativo"
-                          method="post" style="display:inline">
-                        <button type="submit">
-                            {{ "Desativar" if c.ativo else "Ativar" }}
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-            {% if not clientes %}
-            <tr><td colspan="6" style="text-align:center">Nenhum cliente.</td></tr>
-            {% endif %}
-        </tbody>
-    </table>
+            <select name="apenas_associados" class="filter-select" onchange="document.getElementById('filterFormClientes').submit()">
+                <option value="false" {{ 'selected' if not apenas_associados else '' }}>Todos os Clientes</option>
+                <option value="true" {{ 'selected' if apenas_associados else '' }}>Apenas Associados AAPM</option>
+            </select>
+        </form>
 
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+        <!-- Tabela Padronizada -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Matrícula SENAI</th>
+                    <th>Telefone</th>
+                    <th>Associado AAPM</th>
+                    <th>Status</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes %}
+                <tr class="client-row">
+                    <td>
+                        <div class="client-cell">
+                            <div class="client-avatar-small">
+                                {{ c.nome[0]|upper }}
+                            </div>
+                            <div class="client-details">
+                                <strong>{{ c.nome }}</strong>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-family: monospace; font-weight:600; color: var(--text-primary);">
+                            {{ c.matricula if c.matricula else "—" }}
+                        </span>
+                    </td>
+                    <td>{{ c.telefone if c.telefone else "—" }}</td>
+                    <td>
+                        {% if c.is_associado %}
+                        <span class="badge-associado-table">
+                            <i data-lucide="check" style="width:14px;height:14px;"></i>
+                            Sim (10% desc.)
+                        </span>
+                        {% else %}
+                        <span class="badge-nao-associado">Não</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="/clientes/{{ c.id }}/toggle-ativo" method="post" style="margin: 0; display: inline-flex; align-items: center; gap: 8px;">
+                            <label class="switch">
+                                <input type="checkbox" onchange="this.form.submit()" {% if c.ativo %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                            <span class="status-text {{ 'ativo' if c.ativo else 'inativo' }}">
+                                {{ 'Ativo' if c.ativo else 'Inativo' }}
+                            </span>
+                        </form>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                            <a href="/clientes/{{ c.id }}/editar" class="action-btn-icon" title="Editar cliente">
+                                <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% if not clientes %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                        Nenhum cliente encontrado.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const buscaInput = document.getElementById("busca-cliente");
+        const rows = document.querySelectorAll(".client-row");
+
+        if (buscaInput) {
+            buscaInput.addEventListener("input", function (e) {
+                const term = e.target.value.toLowerCase();
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(term) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
