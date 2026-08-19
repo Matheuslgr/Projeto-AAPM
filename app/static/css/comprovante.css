@@ -1,115 +1,394 @@
 /* ============================================================================
-   COMPROVANTE.CSS - Estilos do comprovante/cupom fiscal de venda
+   COMPROVANTE.CSS - Estilos do comprovante de venda do PDV
    ============================================================================ */
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: 'Courier New', monospace;
-    max-width: 400px;
-    margin: 40px auto;
-    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 32px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.comprovante-wrapper {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Banner de Sucesso */
+.sucesso-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Card Principal do Comprovante */
+.cupom-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Cabeçalho */
+.cupom-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.brand-badge {
+    width: 48px;
+    height: 48px;
+    background-color: #111b63;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(17, 27, 99, 0.2);
+}
+
+.brand-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111b63;
+    letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.venda-badge {
+    margin-top: 10px;
+    background-color: #f1f5f9;
+    color: #334155;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+/* Informações em Grade */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Card do Cliente */
+.cliente-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+
+.cliente-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cliente-nome {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.cliente-matricula {
+    font-size: 12px;
+    color: #64748b;
+    font-family: monospace;
+}
+
+.cliente-anonimo {
+    font-size: 13px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.badge-associado {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-start;
+    background-color: #dcfce7;
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.badge-nao-associado {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    background-color: #e2e8f0;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* Lista de Itens */
+.itens-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.itens-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.itens-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #f1f5f9;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-name {
+    font-size: 13px;
+    font-weight: 600;
     color: #1e293b;
 }
 
-.cupom {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 28px;
-}
-
-.titulo {
-    text-align: center;
-    font-weight: 700;
-    font-size: 18px;
-    margin-bottom: 4px;
-}
-
-.subtitulo {
-    text-align: center;
-    color: #64748b;
+.item-qtd-price {
     font-size: 12px;
-    margin-bottom: 20px;
-}
-
-.linha-sep {
-    border: none;
-    border-top: 1px dashed #e2e8f0;
-    margin: 14px 0;
-}
-
-.item-linha {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 6px;
-}
-
-.item-desc {
-    color: #64748b;
-    font-size: 11px;
-    margin-bottom: 8px;
-}
-
-.total-linha {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 6px;
     color: #64748b;
 }
 
-.total-final {
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: 800;
-    margin-top: 10px;
+.item-subtotal {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
 }
 
-.desc-linha {
+/* Totais */
+.totais-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.total-row.desconto {
     color: #16a34a;
+    font-weight: 600;
+}
+
+.total-row.final {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    padding-top: 8px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+.val-final {
+    font-size: 20px;
+    color: #111b63;
+}
+
+/* Observação */
+.obs-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background-color: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #b45309;
+}
+
+.cupom-footer-msg {
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Botões de Ação */
+.receipt-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .btn {
-    display: block;
-    text-align: center;
-    margin-top: 16px;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 14px;
-    text-decoration: none;
-}
-
-.btn-print {
-    background: #2563eb;
-    color: #fff;
-    cursor: pointer;
     width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
     border: none;
 }
 
+.btn-print {
+    background-color: #111b63;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(17, 27, 99, 0.2);
+}
+
+.btn-print:hover {
+    background-color: #1f2f98;
+    transform: translateY(-1px);
+}
+
 .btn-nova {
-    background: #1e293b;
-    color: #fff;
+    background-color: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-nova:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 .btn-hist {
-    background: #f1f5f9;
-    color: #1e293b;
-    margin-top: 8px;
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-hist:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+/* Animações e Impressão */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media print {
-    .btn, button, a {
+    body {
+        background: #ffffff;
+        padding: 0;
+    }
+    .comprovante-wrapper {
+        max-width: 100%;
+    }
+    .sucesso-banner, .receipt-actions {
         display: none !important;
     }
-    body {
-        margin: 0;
-        background: #fff;
-    }
-    .cupom {
+    .cupom-card {
         border: none;
+        box-shadow: none;
         padding: 0;
     }
 }

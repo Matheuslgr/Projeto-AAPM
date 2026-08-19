@@ -2,69 +2,145 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprovante #{{ venda.id }} — AAPM SENAI</title>
     <link rel="stylesheet" href="/static/css/comprovante.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="cupom">
-        <div class="titulo">AAPM SENAI</div>
-        <div class="subtitulo">
-            Venda #{{ venda.id }} —
-            {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}
-        </div>
-        <hr class="linha-sep">
 
-        {% if venda.cliente %}
-        <div class="item-linha">
-            <span>Cliente</span>
-            <span>{{ venda.cliente.nome }}</span>
-        </div>
-        {% if venda.cliente.is_associado %}
-        <div class="item-linha desc-linha">
-            <span>Associado</span>
-            <span>✓ {{ venda.desconto_percentual|int }}% desc.</span>
-        </div>
-        {% endif %}
-        <hr class="linha-sep">
-        {% endif %}
+    <div class="comprovante-wrapper">
 
-        {% for item in venda.itens %}
-        <div class="item-linha">
-            <span>{{ item.produto_nome }}</span>
-            <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
-        </div>
-        <div class="item-desc">
-            {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
-        </div>
-        {% endfor %}
-
-        <hr class="linha-sep">
-
-        <div class="total-linha">
-            <span>Subtotal</span>
-            <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
-        </div>
-
-        {% if venda.desconto_valor > 0 %}
-        <div class="total-linha desc-linha">
-            <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
-            <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
+        {% if request.query_params.get('sucesso') == 'ok' %}
+        <div class="sucesso-banner">
+            <i data-lucide="check-circle-2" style="width:20px; height:20px;"></i>
+            <span>Venda registrada com sucesso!</span>
         </div>
         {% endif %}
 
-        <div class="total-final">
-            <span>TOTAL</span>
-            <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+        <div class="cupom-card">
+            <!-- Cabeçalho do Comprovante -->
+            <div class="cupom-header">
+                <div class="brand-badge">
+                    <i data-lucide="shopping-bag" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h1 class="brand-title">AAPM SENAI</h1>
+                <p class="brand-subtitle">Comprovante de Venda</p>
+                <div class="venda-badge">
+                    #{{ "%06d"|format(venda.id) }}
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Data e Hora</span>
+                    <span class="info-value">
+                        <i data-lucide="calendar" style="width:13px; height:13px;"></i>
+                        {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Operador</span>
+                    <span class="info-value">
+                        <i data-lucide="user" style="width:13px; height:13px;"></i>
+                        {{ venda.usuario.nome if venda.usuario else "Sistema" }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dados do Cliente -->
+            <div class="cliente-card">
+                <span class="info-label">Cliente</span>
+                {% if venda.cliente %}
+                <div class="cliente-details">
+                    <strong class="cliente-nome">{{ venda.cliente.nome }}</strong>
+                    {% if venda.cliente.matricula %}
+                    <span class="cliente-matricula">Matrícula: {{ venda.cliente.matricula }}</span>
+                    {% endif %}
+                </div>
+                {% if venda.cliente.is_associado %}
+                <span class="badge-associado">
+                    <i data-lucide="check-circle-2" style="width:12px; height:12px;"></i>
+                    Associado AAPM
+                </span>
+                {% else %}
+                <span class="badge-nao-associado">Não Associado</span>
+                {% endif %}
+                {% else %}
+                <div class="cliente-details">
+                    <span class="cliente-anonimo">Sem identificação (Venda Balcão)</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Lista de Itens -->
+            <div class="itens-section">
+                <div class="itens-title">Itens do Pedido</div>
+                <div class="itens-list">
+                    {% for item in venda.itens %}
+                    <div class="item-row">
+                        <div class="item-info">
+                            <span class="item-name">{{ item.produto_nome }}</span>
+                            <span class="item-qtd-price">{{ item.quantidade }}x R$ {{ "%.2f"|format(item.preco_unitario)|replace('.', ',') }}</span>
+                        </div>
+                        <span class="item-subtotal">R$ {{ "%.2f"|format(item.subtotal)|replace('.', ',') }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Totais -->
+            <div class="totais-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>R$ {{ "%.2f"|format(venda.total_bruto)|replace('.', ',') }}</span>
+                </div>
+
+                {% if venda.desconto_valor > 0 %}
+                <div class="total-row desconto">
+                    <span>Desconto Associado</span>
+                    <span>− R$ {{ "%.2f"|format(venda.desconto_valor)|replace('.', ',') }}</span>
+                </div>
+                {% endif %}
+
+                <div class="total-row final">
+                    <span>Total Pago</span>
+                    <span class="val-final">R$ {{ "%.2f"|format(venda.total_liquido)|replace('.', ',') }}</span>
+                </div>
+            </div>
+
+            {% if venda.observacao %}
+            <div class="obs-card">
+                <i data-lucide="info" style="width:14px; height:14px; flex-shrink:0;"></i>
+                <span>Obs: {{ venda.observacao }}</span>
+            </div>
+            {% endif %}
+
+            <div class="cupom-footer-msg">
+                Obrigado por apoiar a AAPM SENAI!
+            </div>
         </div>
 
-        {% if venda.observacao %}
-        <hr class="linha-sep">
-        <div style="font-size:12px; color:#64748b; font-style:italic;">Obs: {{ venda.observacao }}</div>
-        {% endif %}
+        <!-- Botões de Ação -->
+        <div class="receipt-actions">
+            <button onclick="window.print()" class="btn btn-print">
+                <i data-lucide="printer" style="width:18px; height:18px;"></i>
+                Imprimir Comprovante
+            </button>
+            <a href="/" class="btn btn-nova">
+                <i data-lucide="plus-circle" style="width:18px; height:18px;"></i>
+                Nova Venda (PDV)
+            </a>
+            <a href="/pdv/historico" class="btn btn-hist">
+                <i data-lucide="arrow-left" style="width:18px; height:18px;"></i>
+                Voltar ao Histórico
+            </a>
+        </div>
+
     </div>
 
-    <button onclick="window.print()" class="btn btn-print">🖨️ Imprimir Comprovante</button>
-    <a href="/" class="btn btn-nova">+ Nova venda (PDV)</a>
-    <a href="/pdv/historico" class="btn btn-hist">Ver histórico</a>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
