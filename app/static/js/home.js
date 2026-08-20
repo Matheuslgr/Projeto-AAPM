@@ -235,12 +235,6 @@ function limparClienteSelecionado() {
     selecionarCliente(clientePadrao);
 }
 
-/**
- * Evento acionado ao alternar manualmente o switch toggle
- */
-function toggleAssociadoManual(checkbox) {
-    setAssociadoState(checkbox.checked);
-}
 
 /**
  * Atualiza o estado visual da chave toggle, badge e recalcula os totais

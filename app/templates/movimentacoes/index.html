@@ -110,7 +110,7 @@
                         <strong>R$ {{ "%.2f"|format(m.valor_total)|replace('.', ',') }}</strong>
                     </td>
                     <td>
-                        <span style="color: {{ 'var(--text-primary)' if m.observacao else 'var(--text-muted)' }};">
+                        <span {% if m.observacao %}style="color: var(--text-primary);"{% else %}style="color: var(--text-muted);"{% endif %}>
                             <strong>{{ m.observacao or "—" }}</strong>
                         </span>
                     </td>
