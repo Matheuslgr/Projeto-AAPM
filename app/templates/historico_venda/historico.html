@@ -61,8 +61,8 @@
                             #{{ v.id }}
                         </a>
                     </td>
-                    <td>{{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}</td>
-                    <td>
+                    <td style="white-space: nowrap;"><strong>{{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}</strong></td>
+                    <td style="white-space: nowrap;">
                         {% if v.cliente %}
                             <strong>{{ v.cliente.nome }}</strong>
                             {% if v.cliente.is_associado %}
@@ -75,8 +75,8 @@
                             <span class="badge-balcao">Balcão (Sem cadastro)</span>
                         {% endif %}
                     </td>
-                    <td>{{ v.itens | length }} item(ns)</td>
-                    <td>
+                    <td style="white-space: nowrap;"><strong>{{ v.itens | length }} item(ns)</strong></td>
+                    <td style="white-space: nowrap;">
                         {% if v.desconto_percentual > 0 %}
                             <span style="color:#16a34a; font-weight:600;">
                                 {{ v.desconto_percentual|int }}%
@@ -86,12 +86,12 @@
                             <span style="color:var(--text-muted);">—</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         <span class="valor-liquido">
                             R$ {{ "%.2f"|format(v.total_liquido)|replace('.', ',') }}
                         </span>
                     </td>
-                    <td>{{ v.usuario.nome if v.usuario else "Sistema" }}</td>
+                    <td style="white-space: nowrap;"><strong>{{ v.usuario.nome if v.usuario else "Sistema" }}</strong></td>
                     <td style="text-align: center;">
                         <a href="/pdv/venda/{{ v.id }}" class="btn-cupom" title="Ver Comprovante">
                             <i data-lucide="receipt" style="width:14px;height:14px;"></i>

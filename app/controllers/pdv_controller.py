@@ -18,6 +18,7 @@ from app.database import get_db
 from app.models.venda import Venda, ItemVenda
 from app.models.produto import Produto
 from app.models.cliente import Cliente
+from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.auth import get_usuario_logado
 
 router = APIRouter(prefix="/pdv", tags=["PDV"])
@@ -151,29 +152,44 @@ def finalizar_venda(
     desconto_percentual = round(((total_bruto - total_liquido) / total_bruto * 100), 1) if total_bruto > 0 else 0.0
 
     # ── Persiste tudo em uma única transação
-    venda = Venda(
-        cliente_id          = cliente_id or None,
-        usuario_id          = usuario.get("id"),
-        desconto_percentual = desconto_percentual,
-        total_bruto         = round(total_bruto, 2),
-        total_liquido       = round(total_liquido, 2),
-        observacao          = observacao or None,
-    )
-    db.add(venda)
-    db.flush()  # gera o venda.id sem commitar ainda
+    try:
+        venda = Venda(
+            cliente_id          = cliente_id or None,
+            usuario_id          = usuario.get("id"),
+            desconto_percentual = desconto_percentual,
+            total_bruto         = round(total_bruto, 2),
+            total_liquido       = round(total_liquido, 2),
+            observacao          = observacao or None,
+        )
+        db.add(venda)
+        db.flush()  # gera o venda.id sem commitar ainda
 
-    for item in itens_validados:
-        db.add(ItemVenda(
-            venda_id       = venda.id,
-            produto_id     = item["produto"].id,
-            produto_nome   = item["produto_nome"],
-            quantidade     = item["quantidade"],
-            preco_unitario = item["preco_unitario"],
-        ))
-        # Baixa o estoque do produto
-        item["produto"].estoque_atual -= item["quantidade"]
+        for item in itens_validados:
+            db.add(ItemVenda(
+                venda_id       = venda.id,
+                produto_id     = item["produto"].id,
+                produto_nome   = item["produto_nome"],
+                quantidade     = item["quantidade"],
+                preco_unitario = item["preco_unitario"],
+            ))
+            
+            # Baixa o estoque do produto
+            item["produto"].estoque_atual -= item["quantidade"]
+            
+            # Registra a movimentação de saída para o Dashboard
+            db.add(Movimentacao(
+                tipo           = TipoMovimentacao.SAIDA,
+                quantidade     = item["quantidade"],
+                preco_unitario = item["preco_unitario"],
+                observacao     = f"Venda PDV #{venda.id}",
+                produto_id     = item["produto"].id,
+                usuario_id     = usuario.get("id")
+            ))
 
-    db.commit()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(url="/pdv?erro=transacao", status_code=302)
 
     return RedirectResponse(
         url=f"/pdv/venda/{venda.id}?sucesso=ok",
