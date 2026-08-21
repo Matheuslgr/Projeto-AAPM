@@ -2,6 +2,11 @@
    AGENDAMENTO DE ARMÁRIOS — CSS (Matching Reference Images)
    ========================================================================== */
 
+:root {
+    --site-primary: #111b63;
+    --site-primary-hover: #1f2f98;
+}
+
 .armarios-container {
     padding: 28px 48px;
     width: 100%;
@@ -68,7 +73,7 @@
 }
 
 .btn-novo-armario {
-    background-color: #0c2340;
+    background-color: var(--site-primary);
     color: #ffffff;
     border: none;
     padding: 10px 22px;
@@ -80,11 +85,11 @@
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(12, 35, 64, 0.2);
+    box-shadow: 0 2px 6px rgba(17, 27, 99, 0.18);
 }
 
 .btn-novo-armario:hover {
-    background-color: #14365d;
+    background-color: var(--site-primary-hover);
     transform: translateY(-1px);
 }
 
@@ -215,7 +220,7 @@
 }
 
 .filter-btn.active {
-    background-color: #0c2340;
+    background-color: var(--site-primary);
     color: #ffffff;
     font-weight: 600;
 }
@@ -237,7 +242,7 @@
 }
 
 .filter-btn.active {
-    background-color: #0c2340;
+    background-color: var(--site-primary);
     color: #ffffff;
     font-weight: 600;
 }
@@ -533,12 +538,12 @@ textarea.form-control {
 }
 
 .btn-primary {
-    background-color: #0c2340;
+    background-color: var(--site-primary);
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: #14365d;
+    background-color: var(--site-primary-hover);
 }
 
 .btn-orange {
