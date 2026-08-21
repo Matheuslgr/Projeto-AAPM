@@ -14,6 +14,13 @@ from app.auth import get_admin
 
 router = APIRouter(prefix="/armarios", tags=["Armários"])
 
+BLOCOS_DISPONIVEIS = [
+    "Bloco A",
+    "Bloco B",
+    "Bloco C",
+]
+
+
 templates = Jinja2Templates(directory="app/templates")
 
 def formatar_data(dt: Optional[date]) -> Optional[str]:
@@ -194,6 +201,12 @@ def criar_armario(
         return JSONResponse(
             status_code=400,
             content={"sucesso": False, "mensagem": "Número e Localização são obrigatórios."}
+        )
+
+    if loc_clean not in BLOCOS_DISPONIVEIS:
+        return JSONResponse(
+            status_code=400,
+            content={"sucesso": False, "mensagem": "Selecione uma localização válida: Bloco A, Bloco B ou Bloco C."}
         )
 
     existente = db.query(Armario).filter(

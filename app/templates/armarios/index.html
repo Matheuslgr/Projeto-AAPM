@@ -98,7 +98,12 @@
 
             <div class="form-group">
                 <label class="form-label">Localização <span class="req">*</span></label>
-                <input type="text" name="localizacao" class="form-control" required placeholder="Ex: Bloco A">
+                <select name="localizacao" class="form-control" required>
+                    <option value="" disabled selected>Selecione o bloco</option>
+                    <option value="Bloco A">Bloco A</option>
+                    <option value="Bloco B">Bloco B</option>
+                    <option value="Bloco C">Bloco C</option>
+                </select>
             </div>
 
             <div class="modal-actions">
