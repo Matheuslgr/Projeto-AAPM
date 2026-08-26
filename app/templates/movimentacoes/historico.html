@@ -80,9 +80,9 @@
             <tbody>
                 {% for m in movimentacoes %}
                 <tr>
-                    <td style="white-space: nowrap; color: var(--text-muted);">
-                        <i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
-                        {{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}
+                    <td style="white-space: nowrap;">
+                        <i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; color: var(--text-muted);"></i>
+                        <strong>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</strong>
                     </td>
                     <td>
                         {% if m.tipo.value == 'entrada' %}
@@ -98,13 +98,15 @@
                     <td>
                         <strong>{{ m.quantidade }} un.</strong>
                     </td>
-                    <td>R$ {{ "%.2f"|format(m.preco_unitario)|replace('.', ',') }}</td>
-                    <td>
+                    <td style="white-space: nowrap;">
+                        <strong>R$ {{ "%.2f"|format(m.preco_unitario)|replace('.', ',') }}</strong>
+                    </td>
+                    <td style="white-space: nowrap;">
                         <strong>R$ {{ "%.2f"|format(m.valor_total)|replace('.', ',') }}</strong>
                     </td>
                     <td>
-                        <span style="color: {{ 'var(--text-primary)' if m.observacao else 'var(--text-muted)' }};">
-                            {{ m.observacao or "—" }}
+                        <span {% if m.observacao %}style="color: var(--text-primary);"{% else %}style="color: var(--text-muted);"{% endif %}>
+                            <strong>{{ m.observacao or "—" }}</strong>
                         </span>
                     </td>
                     <td>
@@ -112,7 +114,7 @@
                             <div class="user-avatar-tiny">
                                 {{ (m.usuario.nome[0]|upper) if m.usuario else '?' }}
                             </div>
-                            <span>{{ m.usuario.nome if m.usuario else "—" }}</span>
+                            <span><strong>{{ m.usuario.nome if m.usuario else "—" }}</strong></span>
                         </div>
                     </td>
                 </tr>
