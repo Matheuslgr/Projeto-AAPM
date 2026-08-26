@@ -623,6 +623,36 @@ input:checked + .slider:before {
 }
 
 /* ==========================================
+   FILTROS GLOBAIS PADRONIZADOS
+   ========================================== */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 11px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    background-color: #ffffff;
+    min-width: 180px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(14, 62, 179, 0.1);
+}
+
+/* ==========================================
    PAGINAÇÃO GLOBAL PADRONIZADA
    ========================================== */
 .pagination-wrapper {

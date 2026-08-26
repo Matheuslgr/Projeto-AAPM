@@ -209,7 +209,7 @@
         {% if total_paginas > 1 or total_produtos > 0 %}
         <div class="pagination-wrapper">
             <div class="pagination-info">
-                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_produtos > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_produtos]|min }}</strong> de <strong>{{ total_produtos }}</strong> produtos
+                Página <strong>{{ pagina }}</strong> de <strong>{{ total_paginas }}</strong> &bull; Total: <strong>{{ total_produtos }}</strong> produtos
             </div>
 
             {% if total_paginas > 1 %}

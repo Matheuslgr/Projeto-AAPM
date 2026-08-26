@@ -162,7 +162,7 @@
         {% if total_paginas > 1 or total_usuarios > 0 %}
         <div class="pagination-wrapper">
             <div class="pagination-info">
-                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_usuarios > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_usuarios]|min }}</strong> de <strong>{{ total_usuarios }}</strong> usuários
+                Página <strong>{{ pagina }}</strong> de <strong>{{ total_paginas }}</strong> &bull; Total: <strong>{{ total_usuarios }}</strong> usuários
             </div>
 
             {% if total_paginas > 1 %}

@@ -144,7 +144,7 @@ function renderPdvPagination(totalItems, totalPages) {
 
     paginationEl.innerHTML = `
         <div class="pagination-info">
-            Mostrando <strong>${start}</strong> a <strong>${end}</strong> de <strong>${totalItems}</strong> produtos
+            Página <strong>${pdvCurrentPage}</strong> de <strong>${totalPages}</strong> &bull; Total: <strong>${totalItems}</strong> produtos
         </div>
         <div class="pagination-controls">
             <button type="button" class="pagination-btn ${pdvCurrentPage <= 1 ? 'disabled' : ''}" 
