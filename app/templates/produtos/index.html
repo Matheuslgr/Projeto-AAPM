@@ -25,12 +25,12 @@
             {% if usuario.role == 'admin' %}
             <div style="display: flex; gap: 8px;">
                 {% if mostrar == 'inativos' %}
-                <a href="/produtos?mostrar=ativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}" class="btn-secondary">
+                <a href="/produtos?mostrar=ativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" class="btn-secondary">
                     <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
                     Ver produtos ativos
                 </a>
                 {% else %}
-                <a href="/produtos?mostrar=inativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}" class="btn-secondary">
+                <a href="/produtos?mostrar=inativos{% if busca %}&busca={{ busca }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" class="btn-secondary">
                     <i data-lucide="eye-off" style="width: 18px; height: 18px;"></i>
                     Ver produtos desativados
                 </a>
@@ -62,9 +62,9 @@
         <!-- Filtros -->
         <form method="get" action="/produtos" class="filters-bar" id="filterFormProdutos">
             <input type="hidden" name="mostrar" value="{{ mostrar }}">
+            
             <div class="search-input-wrapper">
-                <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca }}" id="busca-input"
-                    onkeydown="if(event.key === 'Enter') event.preventDefault();">
+                <input type="text" name="busca" placeholder="Buscar por nome do produto..." value="{{ busca }}" id="busca-input">
                 <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
                 </button>
@@ -74,41 +74,29 @@
                 onchange="document.getElementById('filterFormProdutos').submit()">
                 <option value="0">Todas as categorias</option>
                 {% for c in categorias %}
-                <option value="{{ c.id }}" {{ 'selected' if categoria_id==c.id else '' }}>
+                <option value="{{ c.id }}" {{ 'selected' if categoria_id == c.id else '' }}>
                     {{ c.nome }}
                 </option>
                 {% endfor %}
+            </select>
+
+            <select name="ordem" class="filter-select"
+                onchange="document.getElementById('filterFormProdutos').submit()">
+                <option value="nome_asc" {{ 'selected' if ordem == 'nome_asc' else '' }}>Nome (A - Z)</option>
+                <option value="nome_desc" {{ 'selected' if ordem == 'nome_desc' else '' }}>Nome (Z - A)</option>
+                <option value="preco_asc" {{ 'selected' if ordem == 'preco_asc' else '' }}>Menor Preço</option>
+                <option value="preco_desc" {{ 'selected' if ordem == 'preco_desc' else '' }}>Maior Preço</option>
+                <option value="estoque_asc" {{ 'selected' if ordem == 'estoque_asc' else '' }}>Menor Estoque</option>
+                <option value="estoque_desc" {{ 'selected' if ordem == 'estoque_desc' else '' }}>Maior Estoque</option>
             </select>
         </form>
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const searchInput = document.getElementById("busca-input");
-                const productRows = document.querySelectorAll(".product-row");
-
-                if (searchInput) {
-                    searchInput.addEventListener("input", function (e) {
-                        const term = e.target.value.toLowerCase();
-
-                        productRows.forEach(row => {
-                            const name = row.querySelector(".product-name").textContent.toLowerCase();
-                            const category = row.querySelector(".product-category").textContent.toLowerCase();
-
-                            if (name.includes(term) || category.includes(term)) {
-                                row.style.display = "";
-                            } else {
-                                row.style.display = "none";
-                            }
-                        });
-                    });
-
-                    if (searchInput.value) {
-                        searchInput.focus();
-                        const val = searchInput.value;
-                        searchInput.value = '';
-                        searchInput.value = val;
-                        searchInput.dispatchEvent(new Event('input'));
-                    }
+                if (searchInput && searchInput.value) {
+                    searchInput.focus();
+                    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
                 }
             });
         </script>
@@ -209,13 +197,62 @@
                 {% endfor %}
                 {% if not produtos %}
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">
                         Nenhum produto encontrado.
                     </td>
                 </tr>
                 {% endif %}
             </tbody>
         </table>
+
+        <!-- Paginação -->
+        {% if total_paginas > 1 or total_produtos > 0 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_produtos > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_produtos]|min }}</strong> de <strong>{{ total_produtos }}</strong> produtos
+            </div>
+
+            {% if total_paginas > 1 %}
+            <div class="pagination-controls">
+                {% if pagina > 1 %}
+                <a href="/produtos?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}&mostrar={{ mostrar }}&ordem={{ ordem }}" class="pagination-btn">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for p in range(1, total_paginas + 1) %}
+                        {% if p == 1 or p == total_paginas or (p >= pagina - 2 and p <= pagina + 2) %}
+                            <a href="/produtos?pagina={{ p }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}&mostrar={{ mostrar }}&ordem={{ ordem }}" class="pagination-btn {{ 'active' if p == pagina else '' }}">
+                                {{ p }}
+                            </a>
+                        {% elif p == pagina - 3 or p == pagina + 3 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagina < total_paginas %}
+                <a href="/produtos?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}&mostrar={{ mostrar }}&ordem={{ ordem }}" class="pagination-btn">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
 
     </div>
 </div>

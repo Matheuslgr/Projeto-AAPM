@@ -17,12 +17,14 @@ const emptyCartState = document.getElementById('empty-cart-state');
 const cartItemsList = document.getElementById('cart-items-list');
 const checkoutBtn = document.getElementById('checkout-btn');
 
-// Filtros Atuais
+// Filtros Atuais e Paginação
 let currentSearch = "";
 let currentCategory = "all";
+let pdvCurrentPage = 1;
+const PDV_ITEMS_PER_PAGE = 14;
 
 /**
- * Renderiza o grid de produtos com base nos filtros atuais
+ * Renderiza o grid de produtos com base nos filtros atuais e paginação
  */
 function renderProducts() {
     if (!productsGrid) return;
@@ -34,16 +36,30 @@ function renderProducts() {
         return matchesSearch && matchesCategory;
     });
 
-    if (filteredProducts.length === 0) {
+    const totalFiltered = filteredProducts.length;
+    const totalPages = Math.ceil(totalFiltered / PDV_ITEMS_PER_PAGE) || 1;
+
+    if (pdvCurrentPage > totalPages) {
+        pdvCurrentPage = totalPages;
+    }
+    if (pdvCurrentPage < 1) {
+        pdvCurrentPage = 1;
+    }
+
+    const startIndex = (pdvCurrentPage - 1) * PDV_ITEMS_PER_PAGE;
+    const paginatedProducts = filteredProducts.slice(startIndex, startIndex + PDV_ITEMS_PER_PAGE);
+
+    if (paginatedProducts.length === 0) {
         productsGrid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
                 Nenhum produto encontrado.
             </div>
         `;
+        renderPdvPagination(0, 1);
         return;
     }
 
-    filteredProducts.forEach(product => {
+    paginatedProducts.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.onclick = () => addToCart(product.id);
@@ -78,6 +94,76 @@ function renderProducts() {
         
         productsGrid.appendChild(card);
     });
+
+    renderPdvPagination(totalFiltered, totalPages);
+    lucide.createIcons();
+}
+
+/**
+ * Altera a página atual do PDV
+ */
+function changePdvPage(newPage) {
+    pdvCurrentPage = newPage;
+    renderProducts();
+    const pdvSection = document.querySelector('.pdv-section');
+    if (pdvSection) {
+        pdvSection.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+/**
+ * Renderiza os controles de paginação do PDV
+ */
+function renderPdvPagination(totalItems, totalPages) {
+    const paginationEl = document.getElementById('pdv-pagination');
+    if (!paginationEl) return;
+
+    if (totalItems <= PDV_ITEMS_PER_PAGE) {
+        paginationEl.style.display = 'none';
+        paginationEl.innerHTML = '';
+        return;
+    }
+
+    paginationEl.style.display = 'flex';
+
+    const start = (pdvCurrentPage - 1) * PDV_ITEMS_PER_PAGE + 1;
+    const end = Math.min(pdvCurrentPage * PDV_ITEMS_PER_PAGE, totalItems);
+
+    let pagesHtml = '';
+    for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || (p >= pdvCurrentPage - 2 && p <= pdvCurrentPage + 2)) {
+            pagesHtml += `
+                <button type="button" class="pagination-btn ${p === pdvCurrentPage ? 'active' : ''}" onclick="changePdvPage(${p})">
+                    ${p}
+                </button>
+            `;
+        } else if (p === pdvCurrentPage - 3 || p === pdvCurrentPage + 3) {
+            pagesHtml += `<span class="pagination-ellipsis">...</span>`;
+        }
+    }
+
+    paginationEl.innerHTML = `
+        <div class="pagination-info">
+            Mostrando <strong>${start}</strong> a <strong>${end}</strong> de <strong>${totalItems}</strong> produtos
+        </div>
+        <div class="pagination-controls">
+            <button type="button" class="pagination-btn ${pdvCurrentPage <= 1 ? 'disabled' : ''}" 
+                    ${pdvCurrentPage <= 1 ? 'disabled' : ''} 
+                    onclick="changePdvPage(${pdvCurrentPage - 1})">
+                <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                Anterior
+            </button>
+            <div class="pagination-pages">
+                ${pagesHtml}
+            </div>
+            <button type="button" class="pagination-btn ${pdvCurrentPage >= totalPages ? 'disabled' : ''}" 
+                    ${pdvCurrentPage >= totalPages ? 'disabled' : ''} 
+                    onclick="changePdvPage(${pdvCurrentPage + 1})">
+                Próximo
+                <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+    `;
 
     lucide.createIcons();
 }
@@ -403,6 +489,7 @@ function finalizarVenda() {
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
         currentSearch = e.target.value;
+        pdvCurrentPage = 1;
         renderProducts();
     });
 }
@@ -411,6 +498,7 @@ const searchBtn = document.getElementById('search-btn');
 if (searchBtn) {
     searchBtn.addEventListener('click', () => {
         currentSearch = searchInput ? searchInput.value : "";
+        pdvCurrentPage = 1;
         renderProducts();
     });
 }
@@ -421,6 +509,7 @@ categoryButtons.forEach(button => {
         button.classList.add('active');
         
         currentCategory = button.getAttribute('data-category');
+        pdvCurrentPage = 1;
         renderProducts();
     });
 });

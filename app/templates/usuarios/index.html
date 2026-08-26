@@ -47,8 +47,7 @@
         <!-- Filtros -->
         <form method="get" action="/usuarios" class="filters-bar" id="filterForm">
             <div class="search-input-wrapper">
-                <input type="text" name="busca" id="busca-input" placeholder="Buscar por nome ou e-mail..." value="{{ busca }}" 
-                    onkeydown="if(event.key === 'Enter') event.preventDefault();">
+                <input type="text" name="busca" id="busca-input" placeholder="Buscar por nome ou e-mail..." value="{{ busca }}">
                 <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
                 </button>
@@ -58,40 +57,21 @@
                 <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Administrador</option>
                 <option value="operador" {% if role_filter == 'operador' %}selected{% endif %}>Operador</option>
             </select>
+            <select name="ordem" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="nome_asc" {{ 'selected' if ordem == 'nome_asc' else '' }}>Nome (A - Z)</option>
+                <option value="nome_desc" {{ 'selected' if ordem == 'nome_desc' else '' }}>Nome (Z - A)</option>
+                <option value="email_asc" {{ 'selected' if ordem == 'email_asc' else '' }}>E-mail (A - Z)</option>
+                <option value="email_desc" {{ 'selected' if ordem == 'email_desc' else '' }}>E-mail (Z - A)</option>
+                <option value="recentes" {{ 'selected' if ordem == 'recentes' else '' }}>Mais Recentes</option>
+            </select>
         </form>
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const searchInput = document.getElementById("busca-input");
-                const userRows = document.querySelectorAll(".usuario-row");
-
-                // Busca instantânea no client-side
-                if (searchInput) {
-                    searchInput.addEventListener("input", function(e) {
-                        const term = e.target.value.toLowerCase();
-                        
-                        userRows.forEach(row => {
-                            const name = row.querySelector(".user-details strong").textContent.toLowerCase();
-                            const email = row.querySelector(".user-details span").textContent.toLowerCase();
-                            
-                            if (name.includes(term) || email.includes(term)) {
-                                row.style.display = "";
-                            } else {
-                                row.style.display = "none";
-                            }
-                        });
-                    });
-
-                    // Recuperar o foco após o recarregamento da página (se houver busca pela URL)
-                    if (searchInput.value) {
-                        searchInput.focus();
-                        const val = searchInput.value;
-                        searchInput.value = '';
-                        searchInput.value = val;
-                        
-                        // Dispara a busca inicial para refletir na tela
-                        searchInput.dispatchEvent(new Event('input'));
-                    }
+                if (searchInput && searchInput.value) {
+                    searchInput.focus();
+                    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
                 }
             });
         </script>
@@ -177,6 +157,58 @@
                 {% endif %}
             </tbody>
         </table>
+
+        <!-- Paginação -->
+        {% if total_paginas > 1 or total_usuarios > 0 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_usuarios > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_usuarios]|min }}</strong> de <strong>{{ total_usuarios }}</strong> usuários
+            </div>
+
+            {% if total_paginas > 1 %}
+            <div class="pagination-controls">
+                {% if pagina > 1 %}
+                <a href="/usuarios?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&role={{ role_filter }}&ordem={{ ordem }}" class="pagination-btn">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for p in range(1, total_paginas + 1) %}
+                        {% if p == 1 or p == total_paginas or (p >= pagina - 2 and p <= pagina + 2) %}
+                            <a href="/usuarios?pagina={{ p }}&por_pagina={{ por_pagina }}&busca={{ busca }}&role={{ role_filter }}&ordem={{ ordem }}" class="pagination-btn {{ 'active' if p == pagina else '' }}">
+                                {{ p }}
+                            </a>
+                        {% elif p == pagina - 3 or p == pagina + 3 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagina < total_paginas %}
+                <a href="/usuarios?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&role={{ role_filter }}&ordem={{ ordem }}" class="pagination-btn">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
 
     </div>
 </div>

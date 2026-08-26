@@ -9,15 +9,18 @@
 # ============================================================
 
 import json
+import math
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.database import get_db
 from app.models.venda import Venda, ItemVenda
 from app.models.produto import Produto
 from app.models.cliente import Cliente
+from app.models.usuarios import Usuario
 from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.auth import get_usuario_logado
 
@@ -220,18 +223,65 @@ def detalhe_venda(
 @router.get("/historico")
 def historico_vendas(
     request: Request,
+    busca: str = "",
+    ordem: str = "recentes",
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
-    """Histórico de todas as vendas."""
-    vendas = (
+    """Histórico de todas as vendas com busca, ordenação e paginação."""
+    query = (
         db.query(Venda)
-        .order_by(Venda.criado_em.desc())
-        .limit(100)
-        .all()
+        .outerjoin(Cliente, Venda.cliente_id == Cliente.id)
+        .outerjoin(Usuario, Venda.usuario_id == Usuario.id)
     )
+
+    if busca:
+        busca_limpa = busca.strip().replace("#", "")
+        filtros = [
+            Cliente.nome.ilike(f"%{busca}%"),
+            Usuario.nome.ilike(f"%{busca}%"),
+        ]
+        if busca_limpa.isdigit():
+            filtros.append(Venda.id == int(busca_limpa))
+        query = query.filter(or_(*filtros))
+
+    # Ordenação
+    if ordem == "antigas":
+        query = query.order_by(Venda.criado_em.asc())
+    elif ordem == "maior_valor":
+        query = query.order_by(Venda.total_liquido.desc())
+    elif ordem == "menor_valor":
+        query = query.order_by(Venda.total_liquido.asc())
+    else:
+        ordem = "recentes"
+        query = query.order_by(Venda.criado_em.desc())
+
+    total_vendas = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_vendas / por_pagina) if total_vendas else 1
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    vendas = query.offset(offset).limit(por_pagina).all()
+
     return templates.TemplateResponse(
         request,
         "historico_venda/historico.html",
-        {"request": request, "usuario": usuario, "vendas": vendas}
+        {
+            "request":      request,
+            "usuario":      usuario,
+            "vendas":       vendas,
+            "busca":        busca,
+            "ordem":        ordem,
+            "pagina":       pagina,
+            "por_pagina":   por_pagina,
+            "total_paginas": total_paginas,
+            "total_vendas":  total_vendas,
+        }
     )

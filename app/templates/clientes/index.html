@@ -39,8 +39,7 @@
         <!-- Barra de Filtros -->
         <form method="get" action="/clientes" class="filters-bar" id="filterFormClientes">
             <div class="search-input-wrapper">
-                <input type="text" name="busca" placeholder="Buscar por nome ou matrícula..." value="{{ busca }}" id="busca-cliente"
-                    onkeydown="if(event.key === 'Enter') event.preventDefault();">
+                <input type="text" name="busca" placeholder="Buscar por nome ou matrícula..." value="{{ busca }}" id="busca-cliente">
                 <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
                 </button>
@@ -49,6 +48,13 @@
             <select name="apenas_associados" class="filter-select" onchange="document.getElementById('filterFormClientes').submit()">
                 <option value="false" {{ 'selected' if not apenas_associados else '' }}>Todos os Clientes</option>
                 <option value="true" {{ 'selected' if apenas_associados else '' }}>Apenas Associados AAPM</option>
+            </select>
+
+            <select name="ordem" class="filter-select" onchange="document.getElementById('filterFormClientes').submit()">
+                <option value="nome_asc" {{ 'selected' if ordem == 'nome_asc' else '' }}>Nome (A - Z)</option>
+                <option value="nome_desc" {{ 'selected' if ordem == 'nome_desc' else '' }}>Nome (Z - A)</option>
+                <option value="matricula_asc" {{ 'selected' if ordem == 'matricula_asc' else '' }}>Matrícula (0 - 9)</option>
+                <option value="matricula_desc" {{ 'selected' if ordem == 'matricula_desc' else '' }}>Matrícula (9 - 0)</option>
             </select>
         </form>
 
@@ -134,6 +140,55 @@
             </tbody>
         </table>
 
+        <!-- Paginação -->
+        {% if total_paginas > 1 or total_clientes > 0 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_clientes > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_clientes]|min }}</strong> de <strong>{{ total_clientes }}</strong> clientes
+            </div>
+
+            {% if total_paginas > 1 %}
+            <div class="pagination-controls">
+                {% if pagina > 1 %}
+                <a href="/clientes?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ apenas_associados }}&ordem={{ ordem }}" class="pagination-btn">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for p in range(1, total_paginas + 1) %}
+                        {% if p == 1 or p == total_paginas or (p >= pagina - 2 and p <= pagina + 2) %}
+                            <a href="/clientes?pagina={{ p }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ apenas_associados }}&ordem={{ ordem }}" class="pagination-btn {{ 'active' if p == pagina else '' }}">
+                                {{ p }}
+                            </a>
+                        {% elif p == pagina - 3 or p == pagina + 3 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagina < total_paginas %}
+                <a href="/clientes?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ apenas_associados }}&ordem={{ ordem }}" class="pagination-btn">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
 </div>
 
@@ -143,16 +198,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const buscaInput = document.getElementById("busca-cliente");
-        const rows = document.querySelectorAll(".client-row");
-
-        if (buscaInput) {
-            buscaInput.addEventListener("input", function (e) {
-                const term = e.target.value.toLowerCase();
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(term) ? "" : "none";
-                });
-            });
+        if (buscaInput && buscaInput.value) {
+            buscaInput.focus();
+            buscaInput.setSelectionRange(buscaInput.value.length, buscaInput.value.length);
         }
     });
 </script>

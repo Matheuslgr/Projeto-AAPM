@@ -1,3 +1,4 @@
+import math
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -16,6 +17,9 @@ def listar_clientes(
     request: Request,
     busca: str = "",
     apenas_associados: bool = False,
+    ordem: str = "nome_asc",
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -30,7 +34,28 @@ def listar_clientes(
     if apenas_associados:
         query = query.filter(Cliente.is_associado == True)
 
-    clientes = query.order_by(Cliente.nome).all()
+    # Ordenação
+    if ordem == "nome_desc":
+        query = query.order_by(Cliente.nome.desc())
+    elif ordem == "matricula_asc":
+        query = query.order_by(Cliente.matricula.asc().nullslast())
+    elif ordem == "matricula_desc":
+        query = query.order_by(Cliente.matricula.desc().nullslast())
+    else:
+        ordem = "nome_asc"
+        query = query.order_by(Cliente.nome.asc())
+
+    total_clientes = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_clientes / por_pagina) if total_clientes else 1
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    clientes = query.offset(offset).limit(por_pagina).all()
 
     total_associados = db.query(Cliente).filter(
         Cliente.is_associado == True,
@@ -47,6 +72,11 @@ def listar_clientes(
             "busca":             busca,
             "apenas_associados": apenas_associados,
             "total_associados":  total_associados,
+            "ordem":             ordem,
+            "pagina":            pagina,
+            "por_pagina":        por_pagina,
+            "total_paginas":     total_paginas,
+            "total_clientes":    total_clientes,
         }
     )
 

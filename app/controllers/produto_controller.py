@@ -1,5 +1,5 @@
 # controllers/produto_controller.py — CRUD produtos AAPM SENAI
-
+import math
 import os
 import shutil
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
@@ -30,7 +30,10 @@ def listar_produtos(
     request: Request,
     busca: str = "",
     categoria_id: int = 0,       # 0 = todas as categorias
-    mostrar: str = "ativos",   # ativos ou inativos
+    mostrar: str = "ativos",     # ativos ou inativos
+    ordem: str = "nome_asc",     # nome_asc, nome_desc, preco_asc, preco_desc, estoque_asc, estoque_desc
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -48,20 +51,51 @@ def listar_produtos(
     if categoria_id:
         query = query.filter(Produto.categoria_id == categoria_id)
 
-    produtos    = query.order_by(Produto.nome).all()
-    categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
+    # Ordenação
+    if ordem == "nome_desc":
+        query = query.order_by(Produto.nome.desc())
+    elif ordem == "preco_asc":
+        query = query.order_by(Produto.preco.asc())
+    elif ordem == "preco_desc":
+        query = query.order_by(Produto.preco.desc())
+    elif ordem == "estoque_asc":
+        query = query.order_by(Produto.estoque_atual.asc())
+    elif ordem == "estoque_desc":
+        query = query.order_by(Produto.estoque_atual.desc())
+    else:
+        ordem = "nome_asc"
+        query = query.order_by(Produto.nome.asc())
+
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).order_by(Categoria.nome).all()
+
+    total_produtos = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_produtos / por_pagina) if total_produtos else 1
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    produtos = query.offset(offset).limit(por_pagina).all()
 
     return templates.TemplateResponse(
         request,
         "produtos/index.html",
         {
-            "request":      request,
-            "usuario":      admin,
-            "produtos":     produtos,
-            "categorias":   categorias,
-            "busca":        busca,
-            "categoria_id": categoria_id,
-            "mostrar":      mostrar,
+            "request":        request,
+            "usuario":        admin,
+            "produtos":       produtos,
+            "categorias":     categorias,
+            "busca":          busca,
+            "categoria_id":   categoria_id,
+            "mostrar":        mostrar,
+            "ordem":          ordem,
+            "pagina":         pagina,
+            "por_pagina":     por_pagina,
+            "total_paginas":  total_paginas,
+            "total_produtos": total_produtos,
         }
     )
 

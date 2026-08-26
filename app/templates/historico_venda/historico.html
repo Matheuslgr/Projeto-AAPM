@@ -29,15 +29,21 @@
         </div>
 
         <!-- Filtros -->
-        <div class="filters-bar">
+        <form method="get" action="/pdv/historico" class="filters-bar" id="filterFormHistorico">
             <div class="search-input-wrapper">
-                <input type="text" id="busca-historico" placeholder="Buscar por ID da venda, nome do cliente ou operador..."
-                    onkeydown="if(event.key === 'Enter') event.preventDefault();">
-                <button type="button" class="search-icon-btn" title="Pesquisar">
+                <input type="text" name="busca" id="busca-historico" placeholder="Buscar por ID da venda, cliente ou operador..." value="{{ busca }}">
+                <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
                 </button>
             </div>
-        </div>
+
+            <select name="ordem" class="filter-select" onchange="document.getElementById('filterFormHistorico').submit()">
+                <option value="recentes" {{ 'selected' if ordem == 'recentes' else '' }}>Mais Recentes</option>
+                <option value="antigas" {{ 'selected' if ordem == 'antigas' else '' }}>Mais Antigas</option>
+                <option value="maior_valor" {{ 'selected' if ordem == 'maior_valor' else '' }}>Maior Valor Final</option>
+                <option value="menor_valor" {{ 'selected' if ordem == 'menor_valor' else '' }}>Menor Valor Final</option>
+            </select>
+        </form>
 
         <!-- Tabela de Histórico Padronizada -->
         <table class="data-table">
@@ -111,6 +117,55 @@
             </tbody>
         </table>
 
+        <!-- Paginação -->
+        {% if total_paginas > 1 or total_vendas > 0 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Mostrando <strong>{{ (pagina - 1) * por_pagina + 1 if total_vendas > 0 else 0 }}</strong> a <strong>{{ [pagina * por_pagina, total_vendas]|min }}</strong> de <strong>{{ total_vendas }}</strong> vendas
+            </div>
+
+            {% if total_paginas > 1 %}
+            <div class="pagination-controls">
+                {% if pagina > 1 %}
+                <a href="/pdv/historico?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&ordem={{ ordem }}" class="pagination-btn">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for p in range(1, total_paginas + 1) %}
+                        {% if p == 1 or p == total_paginas or (p >= pagina - 2 and p <= pagina + 2) %}
+                            <a href="/pdv/historico?pagina={{ p }}&por_pagina={{ por_pagina }}&busca={{ busca }}&ordem={{ ordem }}" class="pagination-btn {{ 'active' if p == pagina else '' }}">
+                                {{ p }}
+                            </a>
+                        {% elif p == pagina - 3 or p == pagina + 3 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagina < total_paginas %}
+                <a href="/pdv/historico?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&ordem={{ ordem }}" class="pagination-btn">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </a>
+                {% else %}
+                <span class="pagination-btn disabled">
+                    Próximo
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
 </div>
 
@@ -120,16 +175,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const buscaInput = document.getElementById("busca-historico");
-        const rows = document.querySelectorAll(".venda-row");
-
-        if (buscaInput) {
-            buscaInput.addEventListener("input", function (e) {
-                const term = e.target.value.toLowerCase();
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(term) ? "" : "none";
-                });
-            });
+        if (buscaInput && buscaInput.value) {
+            buscaInput.focus();
+            buscaInput.setSelectionRange(buscaInput.value.length, buscaInput.value.length);
         }
     });
 </script>

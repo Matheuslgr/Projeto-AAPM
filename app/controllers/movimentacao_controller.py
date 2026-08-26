@@ -1,11 +1,4 @@
-# controllers/movimentacao_controller.py
-# ============================================================
-# Entradas e saídas de estoque.
-# Qualquer usuário logado pode registrar movimentações.
-# Somente admins podem ver o histórico completo de todos
-# os produtos — operadores veem apenas suas próprias.
-# ============================================================
-
+import math
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -30,14 +23,17 @@ def listar_movimentacoes(
     request: Request,
     produto_id: int = 0,     # filtra por produto específico
     tipo: str = "",          # "entrada" ou "saida"
+    ordem: str = "recentes", # recentes, antigas, maior_qtd, menor_qtd, maior_valor, menor_valor
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
     """
     Exibe o histórico completo de movimentações com filtros
-    por produto e tipo. Acessível apenas por admins.
+    por produto, tipo, ordenação e paginação. Acessível apenas por admins.
     """
-    query = db.query(Movimentacao).order_by(Movimentacao.criado_em.desc())
+    query = db.query(Movimentacao)
 
     if produto_id:
         query = query.filter(Movimentacao.produto_id == produto_id)
@@ -45,19 +41,50 @@ def listar_movimentacoes(
     if tipo in ("entrada", "saida", "cancelamento", "ajuste"):
         query = query.filter(Movimentacao.tipo == tipo)
 
-    movimentacoes = query.limit(200).all()  # limita para não sobrecarregar
-    produtos      = db.query(Produto).filter(Produto.ativo == True).all()
+    # Ordenação
+    if ordem == "antigas":
+        query = query.order_by(Movimentacao.criado_em.asc())
+    elif ordem == "maior_qtd":
+        query = query.order_by(Movimentacao.quantidade.desc())
+    elif ordem == "menor_qtd":
+        query = query.order_by(Movimentacao.quantidade.asc())
+    elif ordem == "maior_valor":
+        query = query.order_by((Movimentacao.quantidade * Movimentacao.preco_unitario).desc())
+    elif ordem == "menor_valor":
+        query = query.order_by((Movimentacao.quantidade * Movimentacao.preco_unitario).asc())
+    else:
+        ordem = "recentes"
+        query = query.order_by(Movimentacao.criado_em.desc())
+
+    total_movimentacoes = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_movimentacoes / por_pagina) if total_movimentacoes else 1
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    movimentacoes = query.offset(offset).limit(por_pagina).all()
+
+    produtos = db.query(Produto).filter(Produto.ativo == True).order_by(Produto.nome).all()
 
     return templates.TemplateResponse(
         request,
         "movimentacoes/index.html",
         {
-            "request":        request,
-            "usuario":        admin,
-            "movimentacoes":  movimentacoes,
-            "produtos":       produtos,
-            "produto_id":     produto_id,
-            "tipo":           tipo,
+            "request":             request,
+            "usuario":             admin,
+            "movimentacoes":       movimentacoes,
+            "produtos":            produtos,
+            "produto_id":          produto_id,
+            "tipo":                tipo,
+            "ordem":               ordem,
+            "pagina":              pagina,
+            "por_pagina":          por_pagina,
+            "total_paginas":       total_paginas,
+            "total_movimentacoes": total_movimentacoes,
         }
     )
 

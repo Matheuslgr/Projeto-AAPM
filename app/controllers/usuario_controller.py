@@ -2,6 +2,7 @@
 # Rotas acessíveis apenas por administradores.
 
 
+import math
 from fastapi import APIRouter, Depends, Request, Form, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -26,6 +27,9 @@ def listar_usuarios(
     request: Request,
     busca: str = "",
     role: str = "",
+    ordem: str = "nome_asc",
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)  # bloqueia quem não é admin
 ):
@@ -42,18 +46,46 @@ def listar_usuarios(
         
     if role:
         query = query.filter(Usuario.role == role)
-        
-    usuarios = query.order_by(Usuario.nome).all()
+
+    # Ordenação
+    if ordem == "nome_desc":
+        query = query.order_by(Usuario.nome.desc())
+    elif ordem == "email_asc":
+        query = query.order_by(Usuario.email.asc())
+    elif ordem == "email_desc":
+        query = query.order_by(Usuario.email.desc())
+    elif ordem == "recentes":
+        query = query.order_by(Usuario.criado_em.desc())
+    else:
+        ordem = "nome_asc"
+        query = query.order_by(Usuario.nome.asc())
+
+    total_usuarios = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_usuarios / por_pagina) if total_usuarios else 1
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    usuarios = query.offset(offset).limit(por_pagina).all()
 
     return templates.TemplateResponse(
         request,
         "usuarios/index.html",
         {
-            "request": request,
-            "usuario": admin,   # dados de quem está logado (para navbar)
-            "usuarios": usuarios,  # lista para exibir na tabela
-            "busca": busca,
-            "role_filter": role
+            "request":        request,
+            "usuario":        admin,   # dados de quem está logado (para navbar)
+            "usuarios":       usuarios,  # lista para exibir na tabela
+            "busca":          busca,
+            "role_filter":    role,
+            "ordem":          ordem,
+            "pagina":         pagina,
+            "por_pagina":     por_pagina,
+            "total_paginas":  total_paginas,
+            "total_usuarios": total_usuarios,
         }
     )
 
