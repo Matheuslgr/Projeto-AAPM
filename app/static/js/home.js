@@ -420,10 +420,20 @@ function updateCartUI() {
                 const li = document.createElement('li');
                 li.className = 'cart-item';
                 
+                const restante = item.estoque_max - item.quantidade;
+                const estoqueClass = restante <= 0 ? 'estoque-esgotado' : restante <= 3 ? 'estoque-baixo' : 'estoque-ok';
+                const estoqueTexto = restante <= 0 
+                    ? `Estoque esgotado` 
+                    : `${restante} restante${restante > 1 ? 's' : ''} em estoque`;
+                
                 li.innerHTML = `
                     <div class="cart-item-details">
                         <span class="cart-item-name">${item.nome}</span>
                         <span class="cart-item-price">R$ ${subtotalItem.toFixed(2).replace('.', ',')} (${item.quantidade}x R$ ${unitPrice.toFixed(2).replace('.', ',')})</span>
+                        <span class="cart-item-estoque ${estoqueClass}">
+                            <i data-lucide="${restante <= 3 ? 'alert-triangle' : 'package'}" style="width:12px;height:12px;"></i>
+                            ${estoqueTexto}
+                        </span>
                     </div>
                     <div class="cart-item-actions">
                         <div class="quantity-control">
@@ -431,7 +441,7 @@ function updateCartUI() {
                                 <i data-lucide="minus" style="width:12px;height:12px;"></i>
                             </button>
                             <span class="qty-val">${item.quantidade}</span>
-                            <button class="qty-btn" type="button" onclick="alterQtd(${item.produto_id}, 1)">
+                            <button class="qty-btn ${restante <= 0 ? 'qty-btn-disabled' : ''}" type="button" onclick="alterQtd(${item.produto_id}, 1)" ${restante <= 0 ? 'disabled' : ''}>
                                 <i data-lucide="plus" style="width:12px;height:12px;"></i>
                             </button>
                         </div>

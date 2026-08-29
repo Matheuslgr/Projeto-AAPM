@@ -55,9 +55,7 @@
         {% if request.query_params.get('reativado') == 'ok' %}
         <div class="alert alert-success">Produto reativado com sucesso.</div>
         {% endif %}
-        {% if mostrar == 'inativos' %}
-        <div class="alert alert-info">Mostrando produtos desativados.</div>
-        {% endif %}
+
 
         <!-- Filtros -->
         <form method="get" action="/produtos" class="filters-bar" id="filterFormProdutos">

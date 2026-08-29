@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from sqlalchemy import or_, func as sa_func
 from app.database import get_db
 from app.models.cliente import Cliente
 from app.auth import get_admin
@@ -26,9 +27,13 @@ def listar_clientes(
     query = db.query(Cliente)
 
     if busca:
+        termo = f"%{busca.strip()}%"
         query = query.filter(
-            Cliente.nome.ilike(f"%{busca}%") |
-            Cliente.matricula.ilike(f"%{busca}%")
+            or_(
+                Cliente.nome.ilike(termo),
+                sa_func.coalesce(Cliente.matricula, "").ilike(termo),
+                sa_func.coalesce(Cliente.telefone, "").ilike(termo),
+            )
         )
 
     if apenas_associados:
