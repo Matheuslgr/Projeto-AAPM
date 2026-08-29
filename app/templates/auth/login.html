@@ -3,95 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — AAPM PDV</title>
+    <title>Entrar na sua conta — AAPM PDV</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/login.css">
-    <link rel="stylesheet" href="/static/css/usuario_form.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-<div class="login-page">
+<div class="login-wrapper">
 
-    <!-- Partículas de fundo (pontos + linhas) -->
-    <div class="login-particles">
-        <!-- Pontos -->
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <!-- Linhas -->
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-    </div>
+    <!-- SEÇÃO ESQUERDA: HERO / INSTITUCIONAL -->
+    <section class="login-hero">
+        <div class="hero-bg-image"></div>
+        <div class="hero-overlay"></div>
 
-    <!-- Losangos flutuantes -->
-    <div class="login-diamond login-diamond--1"></div>
-    <div class="login-diamond login-diamond--2"></div>
-    <div class="login-diamond login-diamond--3"></div>
-    <div class="login-diamond login-diamond--4"></div>
-    <div class="login-diamond login-diamond--5"></div>
-    <div class="login-diamond login-diamond--6"></div>
-    <div class="login-diamond login-diamond--7"></div>
-    <div class="login-diamond login-diamond--8"></div>
-    <div class="login-diamond login-diamond--9"></div>
-
-    <!-- Conteúdo central -->
-    <div class="login-content">
-
-        <!-- Logo e título -->
-        <div class="login-logo">
-            <div class="login-logo__icon">🎓</div>
-            <h1 class="login-logo__title">AAPM PDV</h1>
-            <span class="login-logo__subtitle">Sistema de Ponto de Venda</span>
+        <!-- Efeitos de partículas e linhas de conexão -->
+        <div class="login-particles" aria-hidden="true">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
         </div>
 
-        <!-- Card do formulário -->
-        <div class="login-card">
+        <!-- Losangos flutuantes com gradiente laranja -->
+        <div class="login-diamond login-diamond--1" aria-hidden="true"></div>
+        <div class="login-diamond login-diamond--2" aria-hidden="true"></div>
+        <div class="login-diamond login-diamond--3" aria-hidden="true"></div>
+        <div class="login-diamond login-diamond--4" aria-hidden="true"></div>
+
+        <div class="hero-content">
+            <!-- Topo: Marca Institucional -->
+            <header class="hero-brand">
+                <div class="brand-badge-icon">
+                    <i data-lucide="graduation-cap" class="brand-lucide-icon"></i>
+                </div>
+                <div class="brand-text-group">
+                    <span class="brand-name">AAPM PDV</span>
+                    <span class="brand-subtext">SENAI • GESTÃO & VENDAS</span>
+                </div>
+            </header>
+
+            <!-- Centro: Chamada principal -->
+            <div class="hero-main">
+                <h1 class="hero-title">
+                    Bem-vindo ao<br>
+                    <span class="hero-title-gradient">AAPM PDV</span>
+                </h1>
+                <p class="hero-description">
+                    Precisão acadêmica em cada venda. Gerencie transações, estoque e relatórios com a estabilidade institucional e a velocidade do software moderno.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SEÇÃO DIREITA: FORMULÁRIO DE LOGIN -->
+    <section class="login-panel">
+        <div class="login-panel-inner">
+
+            <div class="login-header">
+                <h2 class="login-title">Entrar na sua conta</h2>
+                <p class="login-subtitle">Digite suas credenciais para continuar</p>
+            </div>
 
             <!-- Mensagem de erro -->
             {% if erro %}
-                <div class="login-alert login-alert--error">{{ erro }}</div>
+                <div class="login-alert login-alert--error" role="alert">
+                    <i data-lucide="alert-circle" class="alert-icon"></i>
+                    <span>{{ erro }}</span>
+                </div>
             {% endif %}
 
             <!-- Mensagem de sucesso (cadastro) -->
             {% if request.query_params.get("cadastro") == "ok" %}
-                <div class="login-alert login-alert--success">Cadastro realizado! Faça login.</div>
+                <div class="login-alert login-alert--success" role="alert">
+                    <i data-lucide="check-circle-2" class="alert-icon"></i>
+                    <span>Cadastro realizado com sucesso! Faça login para continuar.</span>
+                </div>
             {% endif %}
 
-            <form action="/auth/login" method="post">
-
-                <div class="login-card__group">
-                    <label class="login-card__label" for="email">E-mail</label>
-                    <input
-                        class="login-card__input"
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="seu@email.com"
-                        required
-                        autocomplete="email"
-                    >
+            <form action="/auth/login" method="post" class="login-form">
+                
+                <!-- Campo E-mail -->
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <div class="input-container">
+                        <i data-lucide="mail" class="input-icon-left"></i>
+                        <input
+                            class="form-input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="operador@instituicao.edu.br"
+                            required
+                            autocomplete="email"
+                            autofocus
+                        >
+                    </div>
                 </div>
 
-                <div class="login-card__group">
-                    <label class="login-card__label" for="senha">Senha</label>
-                    <div class="input-password-wrapper">
+                <!-- Campo Senha -->
+                <div class="form-group">
+                    <label class="form-label" for="senha">Senha</label>
+                    <div class="input-container">
+                        <i data-lucide="lock" class="input-icon-left"></i>
                         <input
-                            class="login-card__input"
+                            class="form-input"
                             type="password"
                             id="senha"
                             name="senha"
@@ -99,45 +127,54 @@
                             required
                             autocomplete="current-password"
                         >
-                        <button type="button" class="toggle-password" onclick="toggleSenhaLogin()" title="Mostrar/ocultar senha">
-                            <i data-lucide="eye" id="eye-icon-login" style="width:16px;height:16px;"></i>
+                        <button type="button" class="btn-toggle-password" onclick="toggleSenhaLogin()" title="Mostrar/ocultar senha" tabindex="-1">
+                            <i data-lucide="eye" id="eye-icon-login" class="input-icon-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <button class="login-card__btn" type="submit">Entrar</button>
+                <!-- Botão Acessar Sistema -->
+                <button class="btn-submit" type="submit" id="btn-login">
+                    <span>Acessar Sistema</span>
+                    <i data-lucide="arrow-right" class="btn-icon"></i>
+                </button>
 
             </form>
 
+            <!-- Rodapé discreto no painel -->
+            <footer class="panel-footer">
+                <p>&copy; 2026 AAPM PDV.</p>
+            </footer>
+
         </div>
-
-    </div>
-
-    <!-- Rodapé -->
-    <footer class="login-footer">
-        &copy; AAPM - 2026
-    </footer>
+    </section>
 
 </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) lucide.createIcons();
-        });
-
-        function toggleSenhaLogin() {
-            const input = document.getElementById('senha');
-            const icon  = document.getElementById('eye-icon-login');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                input.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
-            if (window.lucide) lucide.createIcons();
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            lucide.createIcons();
         }
-    </script>
+    });
 
-    </body>
-    </html>
+    function toggleSenhaLogin() {
+        const input = document.getElementById('senha');
+        const icon = document.getElementById('eye-icon-login');
+        if (!input || !icon) return;
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+</script>
+
+</body>
+</html>
