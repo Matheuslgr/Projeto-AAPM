@@ -218,60 +218,28 @@ html, body {
     min-height: 560px;
 }
 
-/* Topo do Hero: Logo Institucional + Nome */
+/* Topo do Hero: Logo Institucional Oficial */
 .hero-brand {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
-.brand-badge-icon {
-    width: 44px;
-    height: 44px;
-    background: rgba(255, 122, 40, 0.1);
-    border: 1px solid rgba(255, 122, 40, 0.35);
-    border-radius: 12px;
-    display: flex;
+.hero-logo-box {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 18px rgba(255, 90, 0, 0.2);
-    transition: all 0.3s ease;
+    background: transparent;
+    padding: 0;
+    pointer-events: none;
+    user-select: none;
 }
 
-.brand-badge-icon:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 122, 40, 0.6);
-    box-shadow: 0 6px 22px rgba(255, 90, 0, 0.35);
-}
-
-.brand-lucide-icon {
-    width: 24px;
-    height: 24px;
-    color: var(--primary-orange);
-}
-
-.brand-text-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.brand-name {
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: var(--text-pure);
-    line-height: 1.1;
-}
-
-.brand-subtext {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: #ff9d5c;
-    text-transform: uppercase;
+.hero-brand-logo {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
 }
 
 /* Centro do Hero: Título e Descrição */

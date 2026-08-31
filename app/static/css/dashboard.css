@@ -55,17 +55,19 @@ body {
     gap: 32px;
 }
 
-.logo {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+.logo-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    user-select: none;
+    pointer-events: none;
 }
 
-.logo-icon {
-    color: var(--orange-color);
+.header-logo-img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* Menu de Navegação */
