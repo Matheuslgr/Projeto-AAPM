@@ -27,7 +27,7 @@ def listar_movimentacoes(
     pagina: int = 1,
     por_pagina: int = 10,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    usuario = Depends(get_usuario_logado)
 ):
     """
     Exibe o histórico completo de movimentações com filtros
@@ -75,7 +75,7 @@ def listar_movimentacoes(
         "movimentacoes/index.html",
         {
             "request":             request,
-            "usuario":             admin,
+            "usuario":             usuario,
             "movimentacoes":       movimentacoes,
             "produtos":            produtos,
             "produto_id":          produto_id,
@@ -223,8 +223,13 @@ def registrar_movimentacao(
     db.add(movimentacao)
     db.commit()  # salva produto (estoque) + movimentação juntos
 
+    if usuario.get("role") == "admin":
+        return RedirectResponse(
+            url=f"/produtos/{produto_id}?movimentacao=ok",
+            status_code=302
+        )
     return RedirectResponse(
-        url=f"/produtos/{produto_id}?movimentacao=ok",
+        url="/movimentacoes?movimentacao=ok",
         status_code=302
     )
 

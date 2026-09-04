@@ -27,7 +27,7 @@
         <!-- Header -->
         <div class="page-header" style="margin-bottom: 24px;">
             <div class="header-info">
-                <a href="/produtos" class="btn-back" title="Voltar aos produtos">
+                <a href="{{ '/produtos' if usuario and usuario.role == 'admin' else '/movimentacoes' }}" class="btn-back" title="Voltar">
                     <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
                 </a>
                 <div class="header-icon">

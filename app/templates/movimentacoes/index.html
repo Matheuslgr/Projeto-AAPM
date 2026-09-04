@@ -28,6 +28,13 @@
             </a>
         </div>
 
+        {% if request.query_params.get('movimentacao') == 'ok' %}
+        <div class="alert alert-success" style="margin-bottom: 20px;">
+            <i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+            <span>Movimentação registrada com sucesso!</span>
+        </div>
+        {% endif %}
+
         <!-- Filtros -->
         <form method="get" action="/movimentacoes" class="filters-bar" id="filterFormMovimentacoes">
             <div class="filter-group" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; width: 100%;">

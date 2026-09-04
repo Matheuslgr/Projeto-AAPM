@@ -46,6 +46,12 @@
                     <span>Histórico</span>
                 </a>
 
+                <!-- MOVIMENTAÇÕES (Acessível por Admin e Operador) -->
+                <a href="/movimentacoes" class="nav-item {% if '/movimentacoes' in request.url.path %}active{% endif %}">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Movimentações</span>
+                </a>
+
                 {% if usuario and usuario.role == 'admin' %}
 
                 <a href="/clientes" class="nav-item {% if '/clientes' in request.url.path %}active{% endif %}">
@@ -56,12 +62,6 @@
                 <a href="/produtos" class="nav-item {% if '/produtos' in request.url.path %}active{% endif %}">
                     <i data-lucide="package"></i>
                     <span>Produtos</span>
-                </a>
-
-                <!-- NOVO: MOVIMENTAÇÕES -->
-                <a href="/movimentacoes" class="nav-item {% if '/movimentacoes' in request.url.path %}active{% endif %}">
-                    <i data-lucide="arrow-left-right"></i>
-                    <span>Movimentações</span>
                 </a>
 
                 <a href="/categorias" class="nav-item {% if '/categorias' in request.url.path %}active{% endif %}">
