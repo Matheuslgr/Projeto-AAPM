@@ -1,0 +1,313 @@
+ :root {
+     --bg-main: #0B0E14;
+     --bg-card: #111620;
+     --border-color: rgba(255, 255, 255, 0.08);
+     --primary-orange: #ff7a28;
+     --primary-orange-hover: #ff8c42;
+     --primary-gradient: linear-gradient(135deg, #ff7a28 0%, #f25a00 100%);
+     --text-pure: #ffffff;
+     --text-primary: #f1f5f9;
+     --text-secondary: #94a3b8;
+     --text-muted: #64748b;
+     --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+ }
+
+ *,
+ *::before,
+ *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+
+ html,
+ body {
+     width: 100%;
+     min-height: 100vh;
+     font-family: var(--font-main);
+     background-color: var(--bg-main);
+     color: var(--text-primary);
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     overflow-x: hidden;
+ }
+
+ body {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     min-height: 100vh;
+     position: relative;
+ }
+
+ /* Partículas de fundo */
+ .bg-particles {
+     position: fixed;
+     inset: 0;
+     overflow: hidden;
+     z-index: 0;
+     pointer-events: none;
+ }
+
+ .bg-particles .dot {
+     position: absolute;
+     width: 3px;
+     height: 3px;
+     background: rgba(255, 255, 255, 0.3);
+     border-radius: 50%;
+     animation: particle-float 12s infinite ease-in-out;
+ }
+
+ .bg-particles .dot:nth-child(1) {
+     top: 12%;
+     left: 18%;
+     animation-delay: 0s;
+     animation-duration: 14s;
+ }
+
+ .bg-particles .dot:nth-child(2) {
+     top: 28%;
+     left: 70%;
+     animation-delay: 1.5s;
+     animation-duration: 11s;
+ }
+
+ .bg-particles .dot:nth-child(3) {
+     top: 60%;
+     left: 12%;
+     animation-delay: 2s;
+     animation-duration: 16s;
+ }
+
+ .bg-particles .dot:nth-child(4) {
+     top: 80%;
+     left: 85%;
+     animation-delay: 0.8s;
+     animation-duration: 13s;
+ }
+
+ .bg-particles .dot:nth-child(5) {
+     top: 45%;
+     left: 50%;
+     animation-delay: 3s;
+     animation-duration: 15s;
+ }
+
+ .bg-particles .dot:nth-child(6) {
+     top: 70%;
+     left: 35%;
+     animation-delay: 2.2s;
+     animation-duration: 10s;
+ }
+
+ @keyframes particle-float {
+
+     0%,
+     100% {
+         transform: translate(0, 0);
+         opacity: 0.3;
+     }
+
+     25% {
+         transform: translate(12px, -18px);
+         opacity: 0.7;
+     }
+
+     50% {
+         transform: translate(-8px, 12px);
+         opacity: 0.4;
+     }
+
+     75% {
+         transform: translate(15px, 8px);
+         opacity: 0.8;
+     }
+ }
+
+ /* Losangos flutuantes */
+ .diamond {
+     position: fixed;
+     z-index: 0;
+     background: linear-gradient(135deg, rgba(255, 122, 40, 0.7) 0%, rgba(242, 90, 0, 0.4) 100%);
+     transform: rotate(45deg);
+     border-radius: 6px;
+     box-shadow: 0 8px 24px rgba(255, 90, 0, 0.25);
+     pointer-events: none;
+ }
+
+ .diamond--1 {
+     top: 10%;
+     right: 15%;
+     width: 36px;
+     height: 36px;
+     opacity: 0.45;
+     animation: diamond-anim-1 9s infinite ease-in-out;
+ }
+
+ .diamond--2 {
+     bottom: 18%;
+     left: 10%;
+     width: 44px;
+     height: 44px;
+     opacity: 0.35;
+     animation: diamond-anim-1 12s infinite ease-in-out;
+     animation-delay: 1.5s;
+ }
+
+ .diamond--3 {
+     top: 55%;
+     right: 8%;
+     width: 28px;
+     height: 28px;
+     opacity: 0.3;
+     animation: diamond-anim-2 8s infinite ease-in-out;
+     animation-delay: 2.2s;
+ }
+
+ @keyframes diamond-anim-1 {
+
+     0%,
+     100% {
+         transform: rotate(45deg) translate(0, 0);
+     }
+
+     50% {
+         transform: rotate(50deg) translate(10px, -15px);
+     }
+ }
+
+ @keyframes diamond-anim-2 {
+
+     0%,
+     100% {
+         transform: rotate(45deg) translate(0, 0);
+     }
+
+     50% {
+         transform: rotate(40deg) translate(-10px, 12px);
+     }
+ }
+
+ /* Card de erro */
+ .error-container {
+     position: relative;
+     z-index: 1;
+     max-width: 520px;
+     width: 90%;
+     text-align: center;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 24px;
+ }
+
+ /* Logo */
+ .error-logo {
+     margin-bottom: 8px;
+ }
+
+ .error-logo img {
+     height: 72px;
+     width: auto;
+     object-fit: contain;
+     filter:
+         drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5)) brightness(1.15);
+ }
+
+ /* Código 404 */
+ .error-code {
+     font-size: 7rem;
+     font-weight: 800;
+     line-height: 1;
+     letter-spacing: -0.04em;
+     background: linear-gradient(135deg, #ff8c42 0%, #ff5500 60%, #ff7a28 100%);
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+     background-clip: text;
+     text-shadow: none;
+     filter: drop-shadow(0 4px 20px rgba(255, 122, 40, 0.3));
+ }
+
+ /* Título */
+ .error-title {
+     font-size: 1.6rem;
+     font-weight: 700;
+     color: var(--text-pure);
+     letter-spacing: -0.01em;
+ }
+
+ /* Descrição */
+ .error-desc {
+     font-size: 1rem;
+     color: var(--text-secondary);
+     line-height: 1.6;
+     max-width: 420px;
+ }
+
+ /* Card de fundo para os botões */
+ .error-card {
+     background: var(--bg-card);
+     border: 1px solid var(--border-color);
+     border-radius: 16px;
+     padding: 32px;
+     width: 100%;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 20px;
+     margin-top: 8px;
+ }
+
+ .error-card p {
+     font-size: 0.9rem;
+     color: var(--text-muted);
+ }
+
+ /* Botões */
+ .error-actions {
+     display: flex;
+     gap: 12px;
+     align-items: center;
+     flex-wrap: wrap;
+     justify-content: center;
+ }
+
+ .btn-primary {
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+     background: var(--primary-gradient);
+     color: #ffffff;
+     padding: 14px 28px;
+     border-radius: 10px;
+     text-decoration: none;
+     font-weight: 700;
+     font-size: 0.95rem;
+     box-shadow: 0 6px 20px rgba(255, 122, 40, 0.35);
+     transition: all 0.2s ease;
+ }
+
+ .btn-primary:hover {
+     background: linear-gradient(135deg, var(--primary-orange-hover) 0%, #ff6200 100%);
+     box-shadow: 0 8px 25px rgba(255, 122, 40, 0.5);
+     transform: translateY(-2px);
+ }
+
+ .btn-primary:active {
+     transform: translateY(0);
+ }
+
+
+ @media (max-width: 480px) {
+     .error-code {
+         font-size: 5rem;
+     }
+
+     .error-title {
+         font-size: 1.3rem;
+     }
+
+     .error-card {
+         padding: 24px 16px;
+     }
+ }

@@ -108,6 +108,14 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
             status_code=401
         )
     if status_code == 404:
+        # Usuário não logado → template standalone (sem base.html)
+        if usuario is None:
+            return templates.TemplateResponse(
+                request,
+                "errors/404_public.html",
+                {"request": request, "detail": exc.detail},
+                status_code=404
+            )
         return templates.TemplateResponse(
             request,
             "errors/404.html",

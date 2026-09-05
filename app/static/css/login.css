@@ -235,11 +235,11 @@ html, body {
 }
 
 .hero-brand-logo {
-    height: 85px;
+    height: 100px;
     width: auto;
     object-fit: contain;
     display: block;
-    filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
 }
 
 /* Centro do Hero: Título e Descrição */
