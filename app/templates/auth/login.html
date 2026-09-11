@@ -17,7 +17,12 @@
 
     <!-- SEÇÃO ESQUERDA: HERO / INSTITUCIONAL -->
     <section class="login-hero">
-        <div class="hero-bg-image"></div>
+        <!-- Video de fundo -->
+        <video id="hero-bg-video" class="hero-bg-video" autoplay muted loop playsinline poster="/static/images/login-bg.jpg">
+            <source src="/static/images/teste2.mp4" type="video/mp4">
+            <!-- fallback para navegadores antigos -->
+        </video>
+        <div class="hero-bg-image" aria-hidden="true"></div>
         <div class="hero-overlay"></div>
 
         <!-- Efeitos de partículas e linhas de conexão -->
@@ -46,7 +51,7 @@
             <!-- Topo: Marca Institucional -->
             <header class="hero-brand">
                 <div class="hero-logo-box">
-                    <img src="/static/images/logo-aapm.png?v=2" alt="AAPM - Escola SENAI Francisco Matarazzo" class="hero-brand-logo">
+                    <img src="/static/images/logo.png?v=2" alt="AAPM - Escola SENAI Francisco Matarazzo" class="hero-brand-logo">
                 </div>
             </header>
 
@@ -54,10 +59,10 @@
             <div class="hero-main">
                 <h1 class="hero-title">
                     Sistema de Vendas<br>
-                    <span class="hero-title-gradient">AAPM SENAI</span>
+                    <span class="hero-title-gradient">MARTPaper</span>
                 </h1>
                 <p class="hero-description">
-                    Plataforma de gestão de vendas e estoque da AAPM SENAI Francisco Matarazzo. Controle preciso e agilidade no atendimento.
+                    Plataforma de gestão de vendas e estoque da MARTPaper Francisco Matarazzo. Controle preciso e agilidade no atendimento.
                 </p>
             </div>
 
@@ -139,7 +144,7 @@
 
             <!-- Rodapé discreto no painel -->
             <footer class="panel-footer">
-                <p>&copy; 2026 AAPM PDV.</p>
+                <p>&copy; 2026 MART PDV.</p>
             </footer>
 
         </div>
