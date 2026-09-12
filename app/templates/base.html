@@ -11,7 +11,7 @@
     </title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css?v=logo4">
     <link rel="stylesheet" href="/static/css/style.css">
 
     <!-- CSS específico por página -->
@@ -30,7 +30,7 @@
         <div class="header-left">
 
             <div class="logo-container">
-                <img src="/static/images/logo.png?v=2" alt="AAPM da Escola SENAI Francisco Matarazzo" class="header-logo-img">
+                <img src="/static/images/logo.png?v=3" alt="AAPM da Escola SENAI Francisco Matarazzo" class="header-logo-img">
             </div>
 
             <!-- Menu de Abas -->
@@ -67,11 +67,6 @@
                 <a href="/categorias" class="nav-item {% if '/categorias' in request.url.path %}active{% endif %}">
                     <i data-lucide="tag"></i>
                     <span>Categorias</span>
-                </a>
-
-                <a href="/armarios" class="nav-item {% if '/armarios' in request.url.path %}active{% endif %}">
-                    <i data-lucide="archive"></i>
-                    <span>Armários</span>
                 </a>
 
                 <a href="/painel" class="nav-item {% if '/painel' in request.url.path %}active{% endif %}">

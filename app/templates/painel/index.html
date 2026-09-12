@@ -72,17 +72,17 @@
             </div>
         </div>
 
-        <!-- Card 4: Total Vendas / Armários Ocupados -->
+        <!-- Card 4: Total Vendas -->
         <div class="kpi-card accent-purple">
             <div class="kpi-header">
-                <span class="kpi-label">ARMÁRIOS OCUPADOS / TOTAL VENDAS</span>
+                <span class="kpi-label">TOTAL DE VENDAS</span>
                 <div class="kpi-icon-badge purple">
-                    <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                    <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
                 </div>
             </div>
-            <div class="kpi-value">{{ armarios_ocupados }} / {{ armarios_total if armarios_total > 0 else 0 }}</div>
+            <div class="kpi-value">{{ total_vendas }}</div>
             <div class="kpi-subtext">
-                <span>{{ armarios_pct }}% de ocupação ({{ total_vendas }} vendas registradas)</span>
+                <span>Vendas registradas no sistema</span>
             </div>
         </div>
 
