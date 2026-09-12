@@ -60,9 +60,9 @@
             </h2>
         </div>
 
-        <!-- Toggle Cliente Associado -->
+        <!-- Toggle Cliente Associado / Clube -->
         <div class="client-association">
-            <span id="client-association-label">Cliente não associado</span>
+            <span id="client-association-label">Cliente Padrão</span>
             <label class="switch">
                 <input type="checkbox" id="client-toggle" disabled>
                 <span class="slider"></span>
@@ -79,7 +79,7 @@
                     <input type="text"
                            id="cliente-search-input"
                            class="cliente-search-input"
-                           placeholder="Buscar por nome ou matrícula..."
+                           placeholder="Buscar por nome ou CPF..."
                            autocomplete="off"
                            onfocus="abrirDropdownClientes()"
                            oninput="filtrarClientes(this.value)">
@@ -100,7 +100,7 @@
             </div>
 
             <div class="desconto-badge" id="badge-desconto" style="display:none">
-                ✓ {{ desconto_associado|int if desconto_associado is defined else 10 }}% de desconto aplicado
+                ✓ Preço Clube MARTPaper aplicado
             </div>
         </div>
 

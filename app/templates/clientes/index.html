@@ -19,7 +19,7 @@
                 </div>
                 <div class="title-area">
                     <h2>Gestão de Clientes</h2>
-                    <p>Cadastre e gerencie clientes e alunos associados AAPM</p>
+                    <p>Cadastre e gerencie clientes e membros do Clube MARTPaper</p>
                 </div>
             </div>
             <a href="/clientes/novo" class="btn-primary">
@@ -39,7 +39,7 @@
         <!-- Barra de Filtros -->
         <form method="get" action="/clientes" class="filters-bar" id="filterFormClientes">
             <div class="search-input-wrapper">
-                <input type="text" name="busca" placeholder="Buscar por nome, matrícula ou telefone..." value="{{ busca }}" id="busca-cliente">
+                <input type="text" name="busca" placeholder="Buscar por nome, CPF ou telefone..." value="{{ busca }}" id="busca-cliente">
                 <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
                 </button>
@@ -47,14 +47,14 @@
 
             <select name="apenas_associados" class="filter-select" onchange="document.getElementById('filterFormClientes').submit()">
                 <option value="false" {{ 'selected' if not apenas_associados else '' }}>Todos os Clientes</option>
-                <option value="true" {{ 'selected' if apenas_associados else '' }}>Apenas Associados AAPM</option>
+                <option value="true" {{ 'selected' if apenas_associados else '' }}>Apenas Clube MARTPaper</option>
             </select>
 
             <select name="ordem" class="filter-select" onchange="document.getElementById('filterFormClientes').submit()">
                 <option value="nome_asc" {{ 'selected' if ordem == 'nome_asc' else '' }}>Nome (A - Z)</option>
                 <option value="nome_desc" {{ 'selected' if ordem == 'nome_desc' else '' }}>Nome (Z - A)</option>
-                <option value="matricula_asc" {{ 'selected' if ordem == 'matricula_asc' else '' }}>Matrícula (0 - 9)</option>
-                <option value="matricula_desc" {{ 'selected' if ordem == 'matricula_desc' else '' }}>Matrícula (9 - 0)</option>
+                <option value="matricula_asc" {{ 'selected' if ordem == 'matricula_asc' else '' }}>CPF / Código (0 - 9)</option>
+                <option value="matricula_desc" {{ 'selected' if ordem == 'matricula_desc' else '' }}>CPF / Código (9 - 0)</option>
             </select>
         </form>
 
@@ -63,9 +63,9 @@
             <thead>
                 <tr>
                     <th>Cliente</th>
-                    <th>Matrícula SENAI</th>
+                    <th>CPF / Código</th>
                     <th>Telefone</th>
-                    <th>Associado AAPM</th>
+                    <th>Clube MARTPaper</th>
                     <th>Status</th>
                     <th style="text-align: center;">Ações</th>
                 </tr>
@@ -100,12 +100,12 @@
                         {% if c.is_associado %}
                         <span class="badge-associado-table">
                             <i data-lucide="check-circle-2" style="width:14px;height:14px;"></i>
-                            Associado
+                            Membro Clube
                         </span>
                         {% else %}
                         <span class="badge-nao-associado">
                             <i data-lucide="minus-circle" style="width:14px;height:14px;opacity:0.6;"></i>
-                            Não Associado
+                            Padrão
                         </span>
                         {% endif %}
                     </td>

@@ -55,16 +55,16 @@
                 <div class="cliente-details">
                     <strong class="cliente-nome">{{ venda.cliente.nome }}</strong>
                     {% if venda.cliente.matricula %}
-                    <span class="cliente-matricula">Matrícula: {{ venda.cliente.matricula }}</span>
+                    <span class="cliente-matricula">CPF / Código: {{ venda.cliente.matricula }}</span>
                     {% endif %}
                 </div>
                 {% if venda.cliente.is_associado %}
                 <span class="badge-associado">
                     <i data-lucide="check-circle-2" style="width:12px; height:12px;"></i>
-                    Associado AAPM
+                    Clube MARTPaper
                 </span>
                 {% else %}
-                <span class="badge-nao-associado">Não Associado</span>
+                <span class="badge-nao-associado">Cliente Padrão</span>
                 {% endif %}
                 {% else %}
                 <div class="cliente-details">
@@ -98,7 +98,7 @@
 
                 {% if venda.desconto_valor > 0 %}
                 <div class="total-row desconto">
-                    <span>Desconto Associado</span>
+                    <span>Desconto Clube MARTPaper</span>
                     <span>− R$ {{ "%.2f"|format(venda.desconto_valor)|replace('.', ',') }}</span>
                 </div>
                 {% endif %}

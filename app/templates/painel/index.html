@@ -68,7 +68,7 @@
             </div>
             <div class="kpi-value">{{ vendas_hoje }}</div>
             <div class="kpi-subtext">
-                <span>{{ pct_socio }}% de associados (geral)</span>
+                <span>{{ pct_socio }}% membros do Clube (geral)</span>
             </div>
         </div>
 
@@ -242,8 +242,8 @@
         <div class="dashboard-panel-card">
             <div class="panel-header-row">
                 <div class="panel-title-area">
-                    <h3>Associados</h3>
-                    <p>% de vendas com preço de sócio</p>
+                    <h3>Clube MARTPaper</h3>
+                    <p>% de vendas com preço do Clube</p>
                 </div>
             </div>
 
@@ -389,12 +389,12 @@
             }
         });
 
-        // 4. Gráfico Donut de Associados (Dados reais SQL)
+        // 4. Gráfico Donut do Clube MARTPaper (Dados reais SQL)
         const ctxAssociados = document.getElementById('chartAssociados').getContext('2d');
         new Chart(ctxAssociados, {
             type: 'doughnut',
             data: {
-                labels: ['Sócio', 'Não Sócio'],
+                labels: ['Clube MARTPaper', 'Padrão'],
                 datasets: [{
                     data: [{{ pct_socio }}, {{ 100 - pct_socio }}],
                     backgroundColor: ['#ff7a28', '#e2e8f0'],

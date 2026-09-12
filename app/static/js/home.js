@@ -272,7 +272,7 @@ function filtrarClientes(termo) {
 
             const isAssociado = cliente.is_associado;
             const matriculaStr = cliente.matricula ? `(${cliente.matricula})` : '';
-            const badgeHtml = isAssociado ? `<span class="badge-opt-associado">✓ ASSOCIADO</span>` : '';
+            const badgeHtml = isAssociado ? `<span class="badge-opt-associado">✓ CLUBE MARTPaper</span>` : '';
 
             item.innerHTML = `
                 <div class="cliente-opt-info">
@@ -337,7 +337,7 @@ function setAssociadoState(isAssociado) {
     }
 
     if (toggleLabel) {
-        toggleLabel.textContent = isAssociado ? "Cliente associado" : "Cliente não associado";
+        toggleLabel.textContent = isAssociado ? "Cliente Clube MARTPaper" : "Cliente comum";
     }
 
     if (badge) {
@@ -383,7 +383,7 @@ function renderizarTotais() {
     if (linhaDesc && labelDesc && valDesc) {
         if (clienteAtual.associado && descontoValor > 0) {
             linhaDesc.style.display = 'flex';
-            labelDesc.textContent = `Desconto Associado`;
+            labelDesc.textContent = `Desconto Clube MARTPaper`;
             valDesc.textContent = `− ${fmt(descontoValor)}`;
         } else {
             linhaDesc.style.display = 'none';

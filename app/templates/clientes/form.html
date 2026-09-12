@@ -39,7 +39,7 @@
             <div class="alert alert-danger">{{ erro }}</div>
         {% endif %}
         {% if request.query_params.get('erro') == 'matricula' %}
-            <div class="alert alert-danger">Esta matrícula SENAI já está em uso por outro cliente.</div>
+            <div class="alert alert-danger">Este CPF ou código já está em uso por outro cliente.</div>
         {% endif %}
 
         <!-- Formulário -->
@@ -58,13 +58,13 @@
                            value="{{ editando.nome if editando else (valores.nome if valores else '') }}" required autofocus>
                 </div>
 
-                <!-- Matrícula -->
+                <!-- Matrícula / CPF -->
                 <div class="form-group">
                     <label class="form-label" for="matricula">
                         <i data-lucide="hash" style="width:14px;height:14px;"></i>
-                        Matrícula SENAI (opcional)
+                        CPF / Código (opcional)
                     </label>
-                    <input id="matricula" type="text" name="matricula" class="form-input" placeholder="Ex: 2024001"
+                    <input id="matricula" type="text" name="matricula" class="form-input" placeholder="Ex: 123.456.789-00 ou código"
                            value="{{ editando.matricula if editando else (valores.matricula if valores else '') }}">
                 </div>
 
@@ -78,15 +78,15 @@
                            value="{{ editando.telefone if editando else (valores.telefone if valores else '') }}">
                 </div>
 
-                <!-- Checkbox Associado -->
+                <!-- Checkbox Clube MARTPaper -->
                 <div class="form-group full-width">
                     <label class="form-checkbox-card" for="is_associado">
                         <input type="checkbox" id="is_associado" name="is_associado" value="true"
                                {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
                         <div>
-                            <strong style="font-size: 14px; color: var(--text-primary);">É associado AAPM</strong>
+                            <strong style="font-size: 14px; color: var(--text-primary);">Membro do Clube MARTPaper</strong>
                             <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-                                Concede automaticamente 10% de desconto em todas as compras no PDV
+                                Aplica automaticamente os preços especiais do Clube MARTPaper nas compras deste cliente
                             </p>
                         </div>
                     </label>
