@@ -75,7 +75,7 @@ html, body {
     background-repeat: no-repeat;
     transform: scale(1.03);
     transition: transform 10s ease-out;
-    z-index: -1;
+    z-index: 0;
 }
 
 .login-hero:hover .hero-bg-image {
@@ -87,9 +87,9 @@ html, body {
     inset: 0;
     background: linear-gradient(
         135deg,
-        rgba(10, 18, 38, 0.88) 0%,
-        rgba(6, 12, 26, 0.92) 55%,
-        rgba(4, 8, 18, 0.97) 100%
+        rgba(10, 18, 38, 0.75) 0%,
+        rgba(6, 12, 26, 0.82) 55%,
+        rgba(4, 8, 18, 0.90) 100%
     );
     z-index: 1;
 }
