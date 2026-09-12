@@ -55,7 +55,7 @@
         <!-- Filtros -->
         <form method="get" action="/categorias" class="filters-bar" id="filterFormCategorias">
             <div class="search-input-wrapper">
-                <input type="text" name="busca" id="busca-input" placeholder="Buscar por nome..." value=""
+                <input type="text" name="busca" id="busca-input" placeholder="Buscar por nome..." value="{{ busca or '' }}"
                     onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 <button type="submit" class="search-icon-btn" title="Pesquisar">
                     <i data-lucide="search"></i>
@@ -67,22 +67,39 @@
             document.addEventListener("DOMContentLoaded", function() {
                 const searchInput = document.getElementById("busca-input");
                 const categoryRows = document.querySelectorAll(".category-row");
+                const emptyRow = document.getElementById("empty-category-row");
+
+                function filtrarCategorias() {
+                    const term = searchInput ? searchInput.value.toLowerCase().trim() : "";
+                    let visiveis = 0;
+
+                    categoryRows.forEach(row => {
+                        const nameEl = row.querySelector(".category-name");
+                        const detailsEl = row.querySelector(".category-details");
+                        const name = nameEl ? nameEl.textContent.toLowerCase() : "";
+                        const details = detailsEl ? detailsEl.textContent.toLowerCase() : "";
+                        
+                        if (name.includes(term) || details.includes(term)) {
+                            row.style.display = "";
+                            visiveis++;
+                        } else {
+                            row.style.display = "none";
+                        }
+                    });
+
+                    if (emptyRow) {
+                        emptyRow.style.display = visiveis === 0 ? "" : "none";
+                        if (window.lucide) {
+                            lucide.createIcons();
+                        }
+                    }
+                }
 
                 if (searchInput) {
-                    searchInput.addEventListener("input", function(e) {
-                        const term = e.target.value.toLowerCase();
-                        
-                        categoryRows.forEach(row => {
-                            const name = row.querySelector(".category-name").textContent.toLowerCase();
-                            const details = row.querySelector(".category-details").textContent.toLowerCase();
-                            
-                            if (name.includes(term) || details.includes(term)) {
-                                row.style.display = "";
-                            } else {
-                                row.style.display = "none";
-                            }
-                        });
-                    });
+                    searchInput.addEventListener("input", filtrarCategorias);
+                    if (searchInput.value.trim() !== "") {
+                        filtrarCategorias();
+                    }
                 }
             });
         </script>
@@ -150,13 +167,14 @@
                     </td>
                 </tr>
                 {% endfor %}
-                {% if not categorias %}
-                <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px;">
-                        Nenhuma categoria encontrada.
+                <tr id="empty-category-row" style="{% if categorias %}display: none;{% endif %}">
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 48px 16px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                            <i data-lucide="tag" style="width: 32px; height: 32px; opacity: 0.35;"></i>
+                            <span style="font-size: 15px; font-weight: 500;">Nenhuma categoria encontrada.</span>
+                        </div>
                     </td>
                 </tr>
-                {% endif %}
             </tbody>
         </table>
 
