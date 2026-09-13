@@ -2,6 +2,7 @@
 import math
 import os
 import shutil
+import uuid
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -271,9 +272,17 @@ async def editar_produto(
     # Processa nova imagem — só substitui se um arquivo foi enviado
     nova_imagem_path = await _salvar_imagem(imagem)
     if nova_imagem_path:
-        # Remove a imagem antiga do disco para não acumular arquivos
-        _remover_imagem(editando.imagem_path)
+        antiga_imagem = editando.imagem_path
         editando.imagem_path = nova_imagem_path
+
+        # Remove a imagem antiga do disco apenas se for diferente da nova e nenhum outro produto a estiver usando
+        if antiga_imagem and antiga_imagem != nova_imagem_path:
+            outros_usando = db.query(Produto).filter(
+                Produto.imagem_path == antiga_imagem,
+                Produto.id != produto_id
+            ).count()
+            if outros_usando == 0:
+                _remover_imagem(antiga_imagem)
 
     editando.nome            = nome
     editando.preco           = preco
@@ -376,16 +385,15 @@ async def _salvar_imagem(imagem: UploadFile | None) -> str | None:
     if not imagem or not imagem.filename:
         return None
 
-    # Valida a extensão — aceita apenas imagens
-    extensoes_permitidas = {".jpg", ".jpeg", ".png", ".webp"}
+    # Valida a extensão — aceita imagens comuns
+    extensoes_permitidas = {".jpg", ".jpeg", ".png", ".webp", ".jfif", ".avif", ".gif"}
     _, ext = os.path.splitext(imagem.filename.lower())
 
     if ext not in extensoes_permitidas:
-        return None  # ignora silenciosamente — pode virar erro em produção
+        return None  # formato não suportado
 
-    # Garante nome de arquivo único usando o nome original
-    # Em produção: use uuid4() para evitar colisões e exposição de nomes
-    nome_arquivo = f"{imagem.filename}"
+    # Garante nome de arquivo único com uuid para evitar colisões e problemas de cache
+    nome_arquivo = f"{uuid.uuid4().hex}{ext}"
     caminho_completo = os.path.join(UPLOAD_DIR, nome_arquivo)
 
     # Salva o arquivo no disco
