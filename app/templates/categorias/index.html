@@ -128,10 +128,10 @@
                         </div>
                     </td>
                     <td>
-                        <form action="/categorias/{{ c.id }}/toggle-ativo" method="post" style="margin: 0;">
+                        <form id="form-toggle-{{ c.id }}" action="/categorias/{{ c.id }}/toggle-ativo" method="post" style="margin: 0;">
                             <div class="status-badge">
                                 <label class="switch" style="transform: scale(0.8); margin: 0;">
-                                    <input type="checkbox" onchange="this.form.submit()" {% if c.ativo %}checked{% endif %}>
+                                    <input type="checkbox" id="checkbox-{{ c.id }}" onchange="abrirModalToggle('form-toggle-{{ c.id }}', '{{ c.nome }}', this)" {% if c.ativo %}checked{% endif %}>
                                     <span class="slider"></span>
                                 </label>
                                 {% if c.ativo %}
@@ -182,7 +182,7 @@
 </div>
 
 <!-- Modal de confirmação de exclusão -->
-<div id="modal-excluir" class="modal-overlay" aria-modal="true" role="dialog" aria-labelledby="modal-titulo">
+<div id="modal-excluir" class="modal-overlay" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="modal-titulo">
     <div class="modal-box">
         <div class="modal-icon-wrap">
             <i data-lucide="trash-2" class="modal-trash-icon"></i>
@@ -200,6 +200,27 @@
     </div>
 </div>
 
+<!-- Modal de confirmação de ativar/desativar categoria -->
+<div id="modal-toggle-ativo" class="modal-overlay" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="modal-titulo-toggle">
+    <div class="modal-box">
+        <div class="modal-icon-wrap warning">
+            <i data-lucide="alert-circle" style="width: 28px; height: 28px; color: #d97706;"></i>
+        </div>
+        <h3 id="modal-titulo-toggle" class="modal-title">Confirmar alteração</h3>
+        <p class="modal-desc">
+            Tem certeza que deseja <strong id="modal-acao-categoria"></strong> a categoria
+            <strong id="modal-nome-categoria-toggle"></strong>?
+            <span id="modal-categoria-aviso" class="modal-warn" style="color: #d97706; display: none;">
+                Os produtos vinculados a ela não aparecerão no PDV enquanto estiver inativa.
+            </span>
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="fecharModalToggle()">Cancelar</button>
+            <button type="button" class="modal-btn-confirm-toggle" id="modal-btn-confirmar-toggle">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -210,12 +231,15 @@
         _formParaExcluir = document.getElementById(formId);
         document.getElementById('modal-nome-categoria').textContent = nomeCategoria;
         const overlay = document.getElementById('modal-excluir');
+        overlay.style.display = 'flex';
         overlay.classList.add('visible');
         lucide.createIcons();
     }
 
     function fecharModal() {
-        document.getElementById('modal-excluir').classList.remove('visible');
+        const overlay = document.getElementById('modal-excluir');
+        overlay.classList.remove('visible');
+        overlay.style.display = 'none';
         _formParaExcluir = null;
     }
 
@@ -223,14 +247,60 @@
         if (_formParaExcluir) _formParaExcluir.submit();
     });
 
-    // Fecha ao clicar no overlay (fora do card)
     document.getElementById('modal-excluir').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) fecharModal();
     });
 
+    let _formParaToggle = null;
+    let _checkboxParaToggle = null;
+
+    function abrirModalToggle(formId, nomeCategoria, checkbox) {
+        _formParaToggle = document.getElementById(formId);
+        _checkboxParaToggle = checkbox;
+
+        const isDesativando = !checkbox.checked;
+        const acao = isDesativando ? 'desativar' : 'ativar';
+        document.getElementById('modal-acao-categoria').textContent = acao;
+        document.getElementById('modal-nome-categoria-toggle').textContent = nomeCategoria;
+
+        const aviso = document.getElementById('modal-categoria-aviso');
+        if (aviso) {
+            aviso.style.display = isDesativando ? 'block' : 'none';
+        }
+
+        const overlay = document.getElementById('modal-toggle-ativo');
+        overlay.style.display = 'flex';
+        overlay.classList.add('visible');
+        lucide.createIcons();
+    }
+
+    function fecharModalToggle() {
+        const overlay = document.getElementById('modal-toggle-ativo');
+        overlay.classList.remove('visible');
+        overlay.style.display = 'none';
+        if (_checkboxParaToggle) {
+            _checkboxParaToggle.checked = !_checkboxParaToggle.checked;
+        }
+        _formParaToggle = null;
+        _checkboxParaToggle = null;
+    }
+
+    document.getElementById('modal-btn-confirmar-toggle').addEventListener('click', () => {
+        if (_formParaToggle) {
+            _formParaToggle.submit();
+        }
+    });
+
+    document.getElementById('modal-toggle-ativo').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) fecharModalToggle();
+    });
+
     // Fecha com ESC
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') fecharModal();
+        if (e.key === 'Escape') {
+            fecharModal();
+            fecharModalToggle();
+        }
     });
 </script>
 {% endblock %}

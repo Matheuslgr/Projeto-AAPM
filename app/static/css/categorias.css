@@ -393,6 +393,34 @@
     transform: translateY(0);
 }
 
+.modal-icon-wrap.warning {
+    background: #fef3c7;
+}
+
+.modal-btn-confirm-toggle {
+    flex: 1;
+    padding: 11px 0;
+    border-radius: 8px;
+    border: none;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.modal-btn-confirm-toggle:hover {
+    background: #0369a1;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+    transform: translateY(-1px);
+}
+
+.modal-btn-confirm-toggle:active {
+    transform: translateY(0);
+}
+
 /* ================= FORM CENTRALIZADO ================= */
 
 .page-wrapper.form-wrapper {

@@ -256,7 +256,7 @@
 </div>
 
 <!-- Modal de confirmação de ativar/desativar -->
-<div id="modal-toggle-ativo" class="modal-overlay" aria-modal="true" role="dialog" aria-labelledby="modal-titulo-toggle">
+<div id="modal-toggle-ativo" class="modal-overlay" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="modal-titulo-toggle">
     <div class="modal-box">
         <div class="modal-icon-wrap">
             <i data-lucide="alert-circle" class="modal-trash-icon" style="color: #f59e0b;"></i>
@@ -290,12 +290,15 @@
         document.getElementById('modal-nome-produto-toggle').textContent = nomeProduto;
         
         const overlay = document.getElementById('modal-toggle-ativo');
+        overlay.style.display = 'flex';
         overlay.classList.add('visible');
         lucide.createIcons();
     }
 
     function fecharModalToggle() {
-        document.getElementById('modal-toggle-ativo').classList.remove('visible');
+        const overlay = document.getElementById('modal-toggle-ativo');
+        overlay.classList.remove('visible');
+        overlay.style.display = 'none';
         if (_checkboxParaToggle) {
             _checkboxParaToggle.checked = !_checkboxParaToggle.checked;
         }
