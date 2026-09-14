@@ -37,8 +37,8 @@
 
         <!-- Filtros -->
         <form method="get" action="/movimentacoes" class="filters-bar" id="filterFormMovimentacoes">
-            <div class="filter-group" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; width: 100%;">
-                <select name="produto_id" class="filter-select" onchange="document.getElementById('filterFormMovimentacoes').submit()">
+            <div class="filter-group" style="display: flex; gap: 12px; flex-wrap: nowrap; align-items: center; width: 100%;">
+                <select name="produto_id" class="filter-select" style="flex: 1; min-width: 0;" onchange="document.getElementById('filterFormMovimentacoes').submit()">
                     <option value="0">Todos os produtos</option>
                     {% for p in produtos %}
                         <option value="{{ p.id }}" {{ 'selected' if produto_id == p.id else '' }}>
@@ -47,7 +47,7 @@
                     {% endfor %}
                 </select>
 
-                <select name="tipo" class="filter-select" onchange="document.getElementById('filterFormMovimentacoes').submit()">
+                <select name="tipo" class="filter-select" style="flex-shrink: 0;" onchange="document.getElementById('filterFormMovimentacoes').submit()">
                     <option value="">Todos os tipos</option>
                     <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>
                         Entrada
@@ -57,7 +57,7 @@
                     </option>
                 </select>
 
-                <select name="ordem" class="filter-select" onchange="document.getElementById('filterFormMovimentacoes').submit()">
+                <select name="ordem" class="filter-select" style="flex-shrink: 0;" onchange="document.getElementById('filterFormMovimentacoes').submit()">
                     <option value="recentes" {{ 'selected' if ordem == 'recentes' else '' }}>Mais Recentes</option>
                     <option value="antigas" {{ 'selected' if ordem == 'antigas' else '' }}>Mais Antigas</option>
                     <option value="maior_qtd" {{ 'selected' if ordem == 'maior_qtd' else '' }}>Maior Quantidade</option>
@@ -67,7 +67,7 @@
                 </select>
 
                 {% if produto_id or tipo or (ordem and ordem != 'recentes') %}
-                    <a href="/movimentacoes" class="btn-filter-clear">
+                    <a href="/movimentacoes" class="btn-filter-clear" style="flex-shrink: 0;">
                         <i data-lucide="x" style="width: 14px; height: 14px;"></i>
                         Limpar filtros
                     </a>
