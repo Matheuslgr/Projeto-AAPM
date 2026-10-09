@@ -23,3 +23,26 @@ def test_form_nova_movimentacao_sucesso(cliente_operador):
     resp = cliente_operador.get("/movimentacoes/nova")
     assert resp.status_code == 200
     assert "form" in resp.text.lower()
+
+def test_registrar_entrada_sucesso(cliente_admin, db_session):
+    """POST /movimentacoes/nova - Sucesso ao registrar entrada e aumentar estoque."""
+    prod = db_session.query(Produto).filter_by(id=14).first()
+    estoque_inicial = prod.estoque_atual
+
+    payload = {
+        "produto_id": 14,
+        "tipo": "entrada",
+        "quantidade": 15,
+        "preco_unitario": 4.00,
+        "observacao": "Reposição de estoque"
+    }
+    resp = cliente_admin.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 302
+
+    db_session.refresh(prod)
+    assert prod.estoque_atual == estoque_inicial + 15
+
+    mov = db_session.query(Movimentacao).filter_by(produto_id=14, observacao="Reposição de estoque").first()
+    assert mov is not None
+    assert mov.tipo == TipoMovimentacao.ENTRADA
+    assert mov.quantidade == 15
