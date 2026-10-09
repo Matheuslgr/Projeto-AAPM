@@ -80,3 +80,16 @@ def test_registrar_saida_estoque_insuficiente_erro(cliente_operador, db_session)
     resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
     assert resp.status_code == 400
     assert "Estoque insuficiente" in resp.text
+
+def test_registrar_movimentacao_quantidade_invalida_erro(cliente_operador):
+    """POST /movimentacoes/nova - Dados inválidos: quantidade zero ou negativa."""
+    payload = {
+        "produto_id": 14,
+        "tipo": "entrada",
+        "quantidade": 0,
+        "preco_unitario": 4.00,
+        "observacao": "Quantidade zerada"
+    }
+    resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 400
+    assert "A quantidade deve ser maior que zero" in resp.text
