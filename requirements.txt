@@ -8,3 +8,5 @@ python-dotenv
 bcrypt==4.3.0
 passlib[bcrypt]
 python-jose[cryptography]
+pytest
+httpx
