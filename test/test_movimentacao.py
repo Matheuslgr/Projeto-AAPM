@@ -64,3 +64,19 @@ def test_registrar_saida_sucesso(cliente_operador, db_session):
 
     db_session.refresh(prod)
     assert prod.estoque_atual == estoque_inicial - 2
+
+def test_registrar_saida_estoque_insuficiente_erro(cliente_operador, db_session):
+    """POST /movimentacoes/nova - Erro 400 por estoque insuficiente ao tentar saída maior que disponível."""
+    prod = db_session.query(Produto).filter_by(id=14).first()
+    qtd_excessiva = prod.estoque_atual + 500
+
+    payload = {
+        "produto_id": 14,
+        "tipo": "saida",
+        "quantidade": qtd_excessiva,
+        "preco_unitario": 4.00,
+        "observacao": "Tentativa inválida"
+    }
+    resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 400
+    assert "Estoque insuficiente" in resp.text
