@@ -83,7 +83,7 @@ def listar_armarios(
 
 # ============================================================
 # API JSON DE BUSCA E FILTRAGEM
-# ============================================================
+
 
 @router.get("/api/listar")
 def api_listar_armarios(
