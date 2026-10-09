@@ -93,3 +93,44 @@ def test_registrar_movimentacao_quantidade_invalida_erro(cliente_operador):
     resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
     assert resp.status_code == 400
     assert "A quantidade deve ser maior que zero" in resp.text
+
+def test_registrar_movimentacao_tipo_invalido_erro(cliente_operador):
+    """POST /movimentacoes/nova - Dados inválidos: tipo de movimentação não permitido."""
+    payload = {
+        "produto_id": 14,
+        "tipo": "tipo_desconhecido",
+        "quantidade": 5,
+        "preco_unitario": 4.00,
+        "observacao": "Tipo incorreto"
+    }
+    resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 400
+    assert "Tipo de movimentação inválido" in resp.text
+
+
+def test_registrar_movimentacao_produto_inexistente_erro(cliente_operador):
+    """POST /movimentacoes/nova - Redirecionamento quando o produto_id não existe."""
+    payload = {
+        "produto_id": 99999,
+        "tipo": "entrada",
+        "quantidade": 5,
+        "preco_unitario": 4.00,
+        "observacao": "Produto fantasma"
+    }
+    resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 302
+    assert "/movimentacoes/nova" in resp.headers["location"]
+
+
+def test_historico_produto_sucesso(cliente_operador):
+    """GET /movimentacoes/produto/{id} - Sucesso ao consultar movimentações de produto específico."""
+    resp = cliente_operador.get("/movimentacoes/produto/14")
+    assert resp.status_code == 200
+    assert "Apontador" in resp.text
+
+
+def test_historico_produto_inexistente_erro(cliente_operador):
+    """GET /movimentacoes/produto/{id} - Redirecionamento quando o produto não existe."""
+    resp = cliente_operador.get("/movimentacoes/produto/99999", follow_redirects=False)
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/produtos"
