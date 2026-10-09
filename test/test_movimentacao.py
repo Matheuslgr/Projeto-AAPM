@@ -46,3 +46,21 @@ def test_registrar_entrada_sucesso(cliente_admin, db_session):
     assert mov is not None
     assert mov.tipo == TipoMovimentacao.ENTRADA
     assert mov.quantidade == 15
+
+def test_registrar_saida_sucesso(cliente_operador, db_session):
+    """POST /movimentacoes/nova - Sucesso ao registrar saída e decrementar estoque."""
+    prod = db_session.query(Produto).filter_by(id=14).first()
+    estoque_inicial = prod.estoque_atual
+
+    payload = {
+        "produto_id": 14,
+        "tipo": "saida",
+        "quantidade": 2,
+        "preco_unitario": 4.00,
+        "observacao": "Saída balcão"
+    }
+    resp = cliente_operador.post("/movimentacoes/nova", data=payload, follow_redirects=False)
+    assert resp.status_code == 302
+
+    db_session.refresh(prod)
+    assert prod.estoque_atual == estoque_inicial - 2
