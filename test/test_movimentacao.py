@@ -17,3 +17,9 @@ def test_listar_movimentacoes_nao_autenticado_erro(cliente):
     """GET /movimentacoes/ - Erro 401 para usuário não logado."""
     resp = cliente.get("/movimentacoes/", follow_redirects=False)
     assert resp.status_code == 401
+
+def test_form_nova_movimentacao_sucesso(cliente_operador):
+    """GET /movimentacoes/nova - Sucesso ao abrir formulário de movimentação."""
+    resp = cliente_operador.get("/movimentacoes/nova")
+    assert resp.status_code == 200
+    assert "form" in resp.text.lower()
