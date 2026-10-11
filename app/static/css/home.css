@@ -1,145 +1,198 @@
 /* ============================================================================
-   HOME.CSS - Estilo específico da página do PDV
+   HOME.CSS - Estilo específico da página do PDV e Carrinho
+   Design refinado e padronizado conforme protótipo AAPM / SENAI
    ============================================================================ */
 
-/* Estilos adicionais para itens do carrinho dinâmicos */
-.cart-items-list {
+/* --- Cabeçalho do Carrinho --- */
+.cart-header {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    list-style: none;
-    width: 100%;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    background-color: #f8fafc;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    animation: slide-in 0.2s ease;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-@keyframes slide-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.cart-item-details {
+.cart-title {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-}
-
-.cart-item-name {
-    font-size: 13px;
-    font-weight: 600;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-primary);
 }
 
-.cart-item-price {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent-color);
+.cart-title svg {
+    color: var(--primary-color);
+    width: 20px;
+    height: 20px;
 }
 
-/* Indicador de estoque no carrinho */
-.cart-item-estoque {
+.cart-count-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    margin-top: 2px;
-    padding: 2px 0;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    background-color: var(--orange-color, #ff7a28);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
     line-height: 1;
 }
 
-.cart-item-estoque.estoque-ok {
-    color: #16a34a;
-}
-
-.cart-item-estoque.estoque-baixo {
-    color: #d97706;
-}
-
-.cart-item-estoque.estoque-esgotado {
-    color: #dc2626;
-    font-weight: 600;
-}
-
-.qty-btn-disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-.cart-item-actions {
+/* --- Toggle Cliente Associado --- */
+.client-association {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.quantity-control {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 2px 8px;
-}
-
-.qty-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background-color: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    font-weight: 500;
     color: var(--text-muted);
+}
+
+/* --- Lista de Itens do Carrinho (Protótipo SENAI) --- */
+.cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    width: 100%;
+    padding: 14px 16px;
+}
+
+.cart-item-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.cart-item-card:hover {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cart-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cart-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cart-qty-btn {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
-    transition: color 0.2s;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #475569;
+    transition: all 0.15s ease;
+    padding: 0;
 }
 
-.qty-btn:hover {
-    color: var(--accent-color);
+.cart-qty-btn svg {
+    width: 12px;
+    height: 12px;
 }
 
-.qty-val {
-    font-size: 12px;
-    font-weight: 600;
-    min-width: 14px;
+.cart-qty-btn:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.cart-qty-btn.disabled,
+.cart-qty-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.cart-qty-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    min-width: 18px;
     text-align: center;
 }
 
-.remove-item-btn {
-    background: none;
-    border: none;
-    color: #ef4444;
-    cursor: pointer;
+.cart-del-btn {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ef4444;
     border-radius: 6px;
-    transition: background-color 0.2s;
+    padding: 0;
+    transition: background 0.15s ease;
+    margin-left: 4px;
 }
 
-.remove-item-btn:hover {
+.cart-del-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.cart-del-btn:hover {
     background-color: #fee2e2;
 }
 
-/* --- Seleção de Cliente Pesquisável (Combobox Autocomplete) --- */
+.cart-item-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.cart-item-calc {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.cart-item-calc strong {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+/* --- Combobox de Seleção de Cliente --- */
 .cliente-section {
-    padding: 14px 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     background-color: #fafafa;
 }
 
@@ -164,19 +217,19 @@
 
 .cliente-input-wrapper .search-icon {
     position: absolute;
-    left: 12px;
-    width: 16px;
-    height: 16px;
+    left: 10px;
+    width: 14px;
+    height: 14px;
     color: var(--text-muted);
     pointer-events: none;
 }
 
 .cliente-search-input {
     width: 100%;
-    padding: 10px 34px 10px 36px;
-    font-size: 13px;
+    padding: 8px 30px 8px 32px;
+    font-size: 12px;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 8px;
     background-color: #ffffff;
     color: var(--text-primary);
     outline: none;
@@ -185,7 +238,7 @@
 
 .cliente-search-input:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
 .btn-limpar-cliente {
@@ -195,22 +248,15 @@
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 4px;
+    padding: 2px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s, color 0.2s;
 }
 
 .btn-limpar-cliente:hover {
-    background-color: #fee2e2;
     color: #ef4444;
-}
-
-.btn-limpar-cliente svg {
-    width: 14px;
-    height: 14px;
 }
 
 .cliente-dropdown-results {
@@ -220,37 +266,26 @@
     right: 0;
     background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    max-height: 220px;
+    border-radius: 8px;
+    max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    animation: fadeIn 0.15s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .cliente-dropdown-item {
-    padding: 10px 14px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
     border-bottom: 1px solid #f1f5f9;
-    transition: background-color 0.15s;
-}
-
-.cliente-dropdown-item:last-child {
-    border-bottom: none;
 }
 
 .cliente-dropdown-item:hover,
 .cliente-dropdown-item.selected {
     background-color: #f1f5f9;
-}
-
-.cliente-opt-nome {
-    font-weight: 500;
-    color: var(--text-primary);
 }
 
 .badge-opt-associado {
@@ -262,104 +297,578 @@
     border-radius: 4px;
 }
 
-.cliente-dropdown-empty {
-    padding: 16px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
 .desconto-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background-color: #dcfce7;
     color: #15803d;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 8px;
-    margin-top: 4px;
-    animation: fadeIn 0.2s ease-in-out;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-top: 2px;
 }
 
-.totais {
+/* --- Rodapé do Carrinho: Totais e Desconto --- */
+.cart-footer {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-    padding: 14px;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    gap: 12px;
+    padding: 16px;
+    background: #ffffff;
+    border-top: 1px solid var(--border-color);
 }
 
-.total-linha {
+.totais-bloco {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13px;
-    color: var(--text-muted);
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
 }
 
-.total-linha.desconto {
+.subtotal-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Linha do Desconto Manual */
+.desconto-pdv-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.desconto-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.desconto-tag-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.desconto-tag-label .tag-icon {
+    width: 15px;
+    height: 15px;
+    color: #64748b;
+}
+
+.desconto-tipo-switch {
+    display: flex;
+    align-items: center;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+}
+
+.btn-tipo-desc {
+    background: none;
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    padding: 3px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-tipo-desc.active {
+    background-color: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.desconto-input-box {
+    width: 100px;
+}
+
+.desconto-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    color: #1e293b;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.desconto-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.desconto-alerta-erro {
+    font-size: 11px;
+    font-weight: 600;
+    color: #dc2626;
+    background-color: #fee2e2;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-top: 2px;
+}
+
+/* Total em Destaque */
+.total-destaque-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+}
+
+.total-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.total-valor-azul {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0c2340; /* Azul escuro conforme imagem */
+    letter-spacing: -0.5px;
+}
+
+/* --- Formas de Pagamento --- */
+.pagamento-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.duas-formas-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.duas-formas-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+}
+
+.duas-formas-label input {
+    cursor: pointer;
+    accent-color: #111b63;
+    width: 14px;
+    height: 14px;
+}
+
+/* Abas de Pagamento (Dinheiro, Cartão, PIX) */
+.payment-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.payment-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-tab svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2px;
+}
+
+.payment-tab:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+}
+
+.payment-tab.active {
+    background-color: #111b63; /* Azul escuro idêntico ao protótipo */
+    border-color: #111b63;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(17, 27, 99, 0.2);
+}
+
+.payment-tab.active svg {
+    color: #ffffff;
+}
+
+/* Sub-painéis de pagamento */
+.payment-details-box {
+    margin-top: 4px;
+    animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Detalhes Dinheiro: Recebido e Faltam / Troco */
+.recebido-faltam-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.recebido-faltam-row.compact {
+    margin-top: 6px;
+    gap: 6px;
+}
+
+.campo-recebido {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.campo-recebido label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-dinheiro-recebido {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.input-dinheiro-recebido:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.campo-status-dinheiro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-align: center;
+    min-height: 48px;
+}
+
+.campo-status-dinheiro.compact {
+    min-height: 38px;
+    padding: 4px 8px;
+}
+
+.label-status-dinheiro {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.val-status-dinheiro {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.campo-status-dinheiro.falta-vermelha {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.campo-status-dinheiro.troco-verde {
+    background-color: #dcfce7;
     color: #16a34a;
+}
+
+/* Botões rápidos de cédulas */
+.quick-cash-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.quick-cash-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 6px 4px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.quick-cash-btn:hover {
+    border-color: #111b63;
+    color: #111b63;
+    background-color: #f8fafc;
+}
+
+/* Sub-painel Cartão (Débito e Crédito) */
+.cartao-subtabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.subtab-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.subtab-btn:hover {
+    border-color: #94a3b8;
+}
+
+.subtab-btn.active {
+    background-color: #111b63;
+    border-color: #111b63;
+    color: #ffffff;
+}
+
+/* Sub-painel PIX */
+.pix-info-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.pix-info-card p {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Modo 2 Formas de Pagamento */
+.pagamento-duplo-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.pagamento-duplo-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.badge-num-forma {
+    background-color: #111b63;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.titulo-forma {
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.duplo-campos-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 6px;
+    align-items: center;
+}
+
+.select-forma-dupla {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.input-prefix-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix-box .prefix {
+    position: absolute;
+    left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.input-valor-duplo {
+    width: 100%;
+    padding: 8px 8px 8px 28px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.input-valor-duplo:focus {
+    border-color: #2563eb;
+}
+
+.duplo-resumo-validacao {
+    margin-top: 8px;
+}
+
+.status-badge-sucesso {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 11px;
     font-weight: 600;
 }
 
-.total-linha.final {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--text-primary);
-    padding-top: 8px;
-    border-top: 1px dashed var(--border-color);
+.status-badge-erro {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
 }
 
+/* Campo de Observação */
 .obs-input {
     width: 100%;
-    padding: 10px 14px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 8px;
     resize: none;
     outline: none;
-    margin-bottom: 14px;
     font-family: inherit;
     transition: border-color 0.2s;
 }
 
 .obs-input:focus {
-    border-color: var(--accent-color);
+    border-color: #2563eb;
 }
 
-/* Estilo do Botão Finalizar Venda */
-.checkout-btn {
+/* --- BOTÃO CONFIRMAR VENDA (LARANJA PROTÓTIPO) --- */
+.btn-confirmar-venda {
     width: 100%;
-    padding: 14px;
+    padding: 14px 16px;
     border: none;
     border-radius: 10px;
-    background-color: #cbd5e1;
-    color: #94a3b8;
     font-size: 15px;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: not-allowed;
     transition: all 0.2s ease;
     text-align: center;
+    user-select: none;
+    background-color: #fbc6a4; /* Laranja pálido / salmão desabilitado */
+    color: #ffffff;
 }
 
-.checkout-btn.active {
-    background-color: #111b63;
+.btn-confirmar-venda .btn-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-confirmar-venda.active,
+.btn-confirmar-venda:not(:disabled) {
+    background-color: #ff7a28; /* Laranja vibrante ativo */
     color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(17, 27, 99, 0.25);
+    box-shadow: 0 4px 14px rgba(255, 122, 40, 0.35);
 }
 
-.checkout-btn.active:hover {
-    background-color: #1f2f98;
+.btn-confirmar-venda.active:hover,
+.btn-confirmar-venda:not(:disabled):hover {
+    background-color: #f25a00;
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(17, 27, 99, 0.35);
+    box-shadow: 0 6px 18px rgba(255, 122, 40, 0.45);
 }
 
-.checkout-btn.active:active {
+.btn-confirmar-venda.active:active,
+.btn-confirmar-venda:not(:disabled):active {
     transform: translateY(0);
+}
+
+.btn-spinner {
+    animation: spin 1s linear infinite;
+    width: 18px;
+    height: 18px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }

@@ -30,9 +30,12 @@ class Venda(Base):
         nullable=True
     )
 
-    # Percentual de desconto aplicado — 0.0 ou 10.0
-    # Guardamos o valor histórico para não depender do cadastro do cliente
+    # Percentual de desconto aplicado — 0.0 ou 10.0 (ou calculado)
     desconto_percentual = Column(Float, nullable=False, default=0.0)
+    
+    # Desconto manual aplicado na venda
+    desconto_manual     = Column(Float, nullable=False, default=0.0)
+    desconto_tipo       = Column(String(20), nullable=True, default="reais")  # "reais" ou "porcentagem"
 
     # Valores calculados e persistidos para histórico imutável
     # (mesmo que o preço do produto mude, a venda permanece correta)
@@ -52,14 +55,39 @@ class Venda(Base):
         back_populates="venda",
         cascade="all, delete-orphan"  # deleta itens se a venda for deletada
     )
+    pagamentos = relationship(
+        "PagamentoVenda",
+        back_populates="venda",
+        cascade="all, delete-orphan"
+    )
 
     @property
     def desconto_valor(self) -> float:
-        """Valor monetário do desconto."""
-        return self.total_bruto - self.total_liquido
+        """Valor monetário do desconto total aplicado."""
+        return max(0.0, round(self.total_bruto - self.total_liquido, 2))
 
     def __repr__(self):
         return f"<Venda id={self.id} total={self.total_liquido}>"
+
+
+class PagamentoVenda(Base):
+    __tablename__ = "pagamentos_venda"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    venda_id        = Column(
+        Integer,
+        ForeignKey("vendas.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    forma_pagamento = Column(String(50), nullable=False)  # 'DINHEIRO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX'
+    valor           = Column(Float, nullable=False)       # Valor atribuído à forma de pagamento
+    valor_recebido  = Column(Float, nullable=True)        # Caso de dinheiro: valor entregue pelo cliente
+    troco           = Column(Float, nullable=True)        # Caso de dinheiro: troco calculado
+
+    venda = relationship("Venda", back_populates="pagamentos")
+
+    def __repr__(self):
+        return f"<PagamentoVenda id={self.id} forma={self.forma_pagamento} valor={self.valor}>"
 
 
 class ItemVenda(Base):

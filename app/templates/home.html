@@ -57,12 +57,13 @@
             <h2 class="cart-title">
                 <i data-lucide="shopping-bag"></i>
                 <span>Carrinho</span>
+                <span class="cart-count-badge" id="cart-count-badge">0</span>
             </h2>
         </div>
 
         <!-- Toggle Cliente Associado / Clube -->
         <div class="client-association">
-            <span id="client-association-label">Cliente Padrão</span>
+            <span id="client-association-label">Cliente não associado</span>
             <label class="switch">
                 <input type="checkbox" id="client-toggle" disabled>
                 <span class="slider"></span>
@@ -71,7 +72,7 @@
 
         <!-- Seleção de cliente pesquisável -->
         <div class="cliente-section">
-            <label class="cliente-label" for="cliente-search-input">Cliente</label>
+            <label class="cliente-label" for="cliente-search-input">Associar Cliente</label>
             
             <div class="cliente-combobox">
                 <div class="cliente-input-wrapper">
@@ -122,38 +123,244 @@
 
         <!-- Rodapé do Carrinho -->
         <div class="cart-footer">
-            <div class="totais" id="totais" style="display:none">
-                <div class="total-linha">
+            
+            <!-- Seção de Totais e Desconto Manual -->
+            <div class="totais-bloco" id="totais" style="display:none">
+                
+                <!-- Subtotal se houver desconto ou associado -->
+                <div class="subtotal-linha" id="linha-subtotal-original" style="display:none;">
                     <span>Subtotal</span>
                     <span id="val-subtotal">R$ 0,00</span>
                 </div>
-                <div class="total-linha desconto" id="linha-desconto" style="display:none">
-                    <span id="label-desconto">Desconto (0%)</span>
-                    <span id="val-desconto">— R$ 0,00</span>
+
+                <!-- Desconto Manual no PDV -->
+                <div class="desconto-pdv-container">
+                    <div class="desconto-header-row">
+                        <div class="desconto-tag-label">
+                            <i data-lucide="tag" class="tag-icon"></i>
+                            <span id="label-tipo-desconto">Desconto (R$)</span>
+                        </div>
+                        <div class="desconto-tipo-switch">
+                            <button type="button" class="btn-tipo-desc active" id="btn-tipo-reais" onclick="mudarTipoDesconto('reais')">R$</button>
+                            <button type="button" class="btn-tipo-desc" id="btn-tipo-pct" onclick="mudarTipoDesconto('porcentagem')">%</button>
+                        </div>
+                        <div class="desconto-input-box">
+                            <input type="number" 
+                                   id="input-desconto" 
+                                   class="desconto-input" 
+                                   value="0.00" 
+                                   min="0" 
+                                   step="0.01" 
+                                   placeholder="0,00"
+                                   oninput="atualizarDescontoManual(this.value)">
+                        </div>
+                    </div>
+                    <div id="desconto-alerta-erro" class="desconto-alerta-erro" style="display:none;">
+                        Desconto não pode ser maior que o subtotal.
+                    </div>
                 </div>
-                <div class="total-linha final">
-                    <span>Total</span>
-                    <span id="val-total">R$ 0,00</span>
+
+                <!-- Total em Destaque -->
+                <div class="total-destaque-linha">
+                    <span class="total-label">Total</span>
+                    <span class="total-valor-azul" id="val-total">R$ 0,00</span>
                 </div>
+
             </div>
 
+            <!-- Bloco de Formas de Pagamento (Sprint 3) -->
+            <div class="pagamento-container" id="pagamento-container" style="display:none">
+                
+                <!-- Toggle Dividir Pagamento em 2 Formas -->
+                <div class="duas-formas-toggle-row">
+                    <label class="duas-formas-label" for="toggle-duas-formas">
+                        <input type="checkbox" id="toggle-duas-formas" onchange="toggleModoDuasFormas(this.checked)">
+                        <span>Dividir em 2 formas de pagamento</span>
+                    </label>
+                </div>
+
+                <!-- MODO 1 FORMA DE PAGAMENTO -->
+                <div id="modo-pagamento-unico" class="modo-pagamento-bloco">
+                    
+                    <!-- Botões Principais de Forma de Pagamento -->
+                    <div class="payment-tabs">
+                        <button type="button" class="payment-tab active" id="tab-dinheiro" onclick="selecionarFormaUnica('DINHEIRO')">
+                            <i data-lucide="banknote"></i>
+                            <span>Dinheiro</span>
+                        </button>
+                        <button type="button" class="payment-tab" id="tab-cartao" onclick="selecionarFormaUnica('CARTAO')">
+                            <i data-lucide="credit-card"></i>
+                            <span>Cartão</span>
+                        </button>
+                        <button type="button" class="payment-tab" id="tab-pix" onclick="selecionarFormaUnica('PIX')">
+                            <i data-lucide="qr-code"></i>
+                            <span>PIX</span>
+                        </button>
+                    </div>
+
+                    <!-- Detalhes quando Dinheiro selecionado -->
+                    <div id="detalhes-dinheiro" class="payment-details-box">
+                        <div class="recebido-faltam-row">
+                            <div class="campo-recebido">
+                                <label for="input-recebido">RECEBIDO</label>
+                                <input type="number" 
+                                       step="0.01" 
+                                       min="0" 
+                                       id="input-recebido" 
+                                       class="input-dinheiro-recebido" 
+                                       value="0.00" 
+                                       placeholder="0,00"
+                                       oninput="atualizarDinheiroRecebido(this.value)">
+                            </div>
+                            <div class="campo-status-dinheiro" id="box-status-dinheiro">
+                                <span class="label-status-dinheiro" id="label-status-dinheiro">FALTAM</span>
+                                <span class="val-status-dinheiro" id="val-status-dinheiro">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <!-- Cédulas e Valores Rápidos -->
+                        <div class="quick-cash-row" id="quick-cash-buttons">
+                            <!-- Inserido dinamicamente por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Detalhes quando Cartão selecionado -->
+                    <div id="detalhes-cartao" class="payment-details-box" style="display:none">
+                        <div class="cartao-subtabs">
+                            <button type="button" class="subtab-btn active" id="subtab-debito" onclick="selecionarSubtipoCartao('DEBITO')">
+                                Débito
+                            </button>
+                            <button type="button" class="subtab-btn" id="subtab-credito" onclick="selecionarSubtipoCartao('CREDITO')">
+                                Crédito
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes quando PIX selecionado -->
+                    <div id="detalhes-pix" class="payment-details-box" style="display:none">
+                        <div class="pix-info-card">
+                            <p>Gere o PIX na maquininha e confirme após o recebimento.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- MODO 2 FORMAS DE PAGAMENTO -->
+                <div id="modo-pagamento-duplo" class="modo-pagamento-bloco" style="display:none">
+                    
+                    <div class="pagamento-duplo-card">
+                        <div class="pagamento-duplo-header">
+                            <span class="badge-num-forma">1ª</span>
+                            <span class="titulo-forma">Primeira forma de pagamento</span>
+                        </div>
+                        <div class="duplo-campos-row">
+                            <select id="duplo-forma-1" class="select-forma-dupla" onchange="atualizarPagamentoDuplo()">
+                                <option value="DINHEIRO">💵 Dinheiro</option>
+                                <option value="CARTAO_DEBITO" selected>💳 Cartão Débito</option>
+                                <option value="CARTAO_CREDITO">💳 Cartão Crédito</option>
+                                <option value="PIX">📱 PIX</option>
+                            </select>
+                            <div class="input-prefix-box">
+                                <span class="prefix">R$</span>
+                                <input type="number" 
+                                       id="duplo-valor-1" 
+                                       class="input-valor-duplo" 
+                                       step="0.01" 
+                                       min="0.01" 
+                                       placeholder="0,00"
+                                       oninput="atualizarPagamentoDuplo('1')">
+                            </div>
+                        </div>
+
+                        <!-- Se a 1ª forma for dinheiro, campo recebido -->
+                        <div id="duplo-dinheiro-extra-1" class="duplo-dinheiro-extra" style="display:none">
+                            <div class="recebido-faltam-row compact">
+                                <div class="campo-recebido">
+                                    <label>RECEBIDO</label>
+                                    <input type="number" step="0.01" min="0" id="duplo-recebido-1" class="input-dinheiro-recebido" placeholder="0,00" oninput="atualizarDinheiroDuplo(1)">
+                                </div>
+                                <div class="campo-status-dinheiro compact" id="duplo-status-1">
+                                    <span class="label-status-dinheiro" id="duplo-label-status-1">FALTAM</span>
+                                    <span class="val-status-dinheiro" id="duplo-val-status-1">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pagamento-duplo-card" style="margin-top: 10px;">
+                        <div class="pagamento-duplo-header">
+                            <span class="badge-num-forma">2ª</span>
+                            <span class="titulo-forma">Segunda forma de pagamento</span>
+                        </div>
+                        <div class="duplo-campos-row">
+                            <select id="duplo-forma-2" class="select-forma-dupla" onchange="atualizarPagamentoDuplo()">
+                                <option value="DINHEIRO" selected>💵 Dinheiro</option>
+                                <option value="CARTAO_DEBITO">💳 Cartão Débito</option>
+                                <option value="CARTAO_CREDITO">💳 Cartão Crédito</option>
+                                <option value="PIX">📱 PIX</option>
+                            </select>
+                            <div class="input-prefix-box">
+                                <span class="prefix">R$</span>
+                                <input type="number" 
+                                       id="duplo-valor-2" 
+                                       class="input-valor-duplo" 
+                                       step="0.01" 
+                                       min="0.01" 
+                                       placeholder="0,00"
+                                       oninput="atualizarPagamentoDuplo('2')">
+                            </div>
+                        </div>
+
+                        <!-- Se a 2ª forma for dinheiro, campo recebido -->
+                        <div id="duplo-dinheiro-extra-2" class="duplo-dinheiro-extra" style="display:none">
+                            <div class="recebido-faltam-row compact">
+                                <div class="campo-recebido">
+                                    <label>RECEBIDO</label>
+                                    <input type="number" step="0.01" min="0" id="duplo-recebido-2" class="input-dinheiro-recebido" placeholder="0,00" oninput="atualizarDinheiroDuplo(2)">
+                                </div>
+                                <div class="campo-status-dinheiro compact" id="duplo-status-2">
+                                    <span class="label-status-dinheiro" id="duplo-label-status-2">FALTAM</span>
+                                    <span class="val-status-dinheiro" id="duplo-val-status-2">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumo da validação de 2 formas -->
+                    <div id="duplo-resumo-validacao" class="duplo-resumo-validacao">
+                        <!-- Atualizado dinamicamente por JS -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Observação Opcional -->
             <textarea class="obs-input"
                       id="obs-input"
                       rows="2"
                       placeholder="Observação (opcional)..."></textarea>
 
+            <!-- Formulário Finalizar Venda -->
             <form id="form-venda" action="/pdv/finalizar" method="post">
-                <input type="hidden" name="carrinho_json" id="input-carrinho">
-                <input type="hidden" name="cliente_id"   id="input-cliente-id" value="0">
-                <input type="hidden" name="observacao"   id="input-obs">
-                <button class="checkout-btn"
+                <input type="hidden" name="carrinho_json"    id="input-carrinho">
+                <input type="hidden" name="cliente_id"       id="input-cliente-id" value="0">
+                <input type="hidden" name="observacao"       id="input-obs">
+                <input type="hidden" name="desconto_manual"  id="input-desconto-manual" value="0.0">
+                <input type="hidden" name="desconto_tipo"    id="input-desconto-tipo" value="reais">
+                <input type="hidden" name="pagamentos_json"  id="input-pagamentos" value="[]">
+
+                <!-- Botão Confirmar Venda Direta no Carrinho -->
+                <button class="btn-confirmar-venda"
                         id="checkout-btn"
                         type="button"
                         disabled
                         onclick="finalizarVenda()">
-                    Finalizar venda
+                    <i data-lucide="banknote" class="btn-icon"></i>
+                    <span>Confirmar Venda — <strong id="btn-total-txt">R$ 0,00</strong></span>
                 </button>
             </form>
+
         </div>
 
     </aside>

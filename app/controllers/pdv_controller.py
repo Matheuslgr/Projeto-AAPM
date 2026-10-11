@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.database import get_db
-from app.models.venda import Venda, ItemVenda
+from app.models.venda import Venda, ItemVenda, PagamentoVenda
 from app.models.produto import Produto
 from app.models.cliente import Cliente
 from app.models.usuarios import Usuario
@@ -69,20 +69,18 @@ def tela_pdv(
 @router.post("/finalizar")
 def finalizar_venda(
     request: Request,
-    carrinho_json: str = Form(...),  # JSON serializado pelo JS
-    cliente_id: int    = Form(0),    # 0 = sem cliente identificado
-    observacao: str    = Form(""),
-    db: Session        = Depends(get_db),
-    usuario            = Depends(get_usuario_logado)
+    carrinho_json: str    = Form(...),        # JSON serializado pelo JS
+    cliente_id: int       = Form(0),          # 0 = sem cliente identificado
+    observacao: str       = Form(""),
+    desconto_manual: float = Form(0.0),       # Valor do desconto manual inserido
+    desconto_tipo: str    = Form("reais"),    # "reais" ou "porcentagem"
+    pagamentos_json: str  = Form("[]"),       # JSON com 1 ou 2 formas de pagamento
+    db: Session           = Depends(get_db),
+    usuario               = Depends(get_usuario_logado)
 ):
     """
-    Recebe o carrinho como JSON, valida e persiste a venda.
-
-    Formato esperado do carrinho_json:
-    [
-        {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
-        {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
-    ]
+    Recebe o carrinho como JSON, valida estoque, calcula desconto manual,
+    valida 1 ou 2 formas de pagamento e persiste a venda.
     """
     try:
         itens = json.loads(carrinho_json)
@@ -107,7 +105,7 @@ def finalizar_venda(
 
     # ── Valida estoque e calcula totais ──────────────────────
     total_bruto = 0.0
-    total_liquido = 0.0
+    subtotal_base = 0.0
     itens_validados = []
 
     for item in itens:
@@ -140,10 +138,10 @@ def finalizar_venda(
         )
 
         subtotal_bruto = produto.preco * qtd
-        subtotal_liquido = preco_unitario * qtd
+        subtotal_liquido_item = preco_unitario * qtd
 
         total_bruto += subtotal_bruto
-        total_liquido += subtotal_liquido
+        subtotal_base += subtotal_liquido_item
 
         itens_validados.append({
             "produto":        produto,
@@ -152,14 +150,89 @@ def finalizar_venda(
             "produto_nome":   produto.nome,
         })
 
-    desconto_percentual = round(((total_bruto - total_liquido) / total_bruto * 100), 1) if total_bruto > 0 else 0.0
+    # ── Validação e cálculo do desconto manual ────────────────
+    valor_desconto_manual = 0.0
+    if desconto_manual > 0:
+        if desconto_tipo == "porcentagem":
+            if desconto_manual > 100.0:
+                return RedirectResponse(url="/pdv?erro=desconto_acima_limite", status_code=302)
+            valor_desconto_manual = round(subtotal_base * (desconto_manual / 100.0), 2)
+        else:
+            if desconto_manual > subtotal_base:
+                return RedirectResponse(url="/pdv?erro=desconto_acima_limite", status_code=302)
+            valor_desconto_manual = round(desconto_manual, 2)
 
-    # ── Persiste tudo em uma única transação
+    total_liquido = round(max(0.0, subtotal_base - valor_desconto_manual), 2)
+    desconto_total = round(total_bruto - total_liquido, 2)
+    desconto_percentual = round((desconto_total / total_bruto * 100), 1) if total_bruto > 0 else 0.0
+
+    # ── Validação das formas de pagamento (Sprint 3) ─────────
+    try:
+        pagamentos_data = json.loads(pagamentos_json) if pagamentos_json else []
+    except (json.JSONDecodeError, ValueError):
+        pagamentos_data = []
+
+    # Se nenhum pagamento foi enviado no JSON, default para Dinheiro (1 forma)
+    if not pagamentos_data:
+        pagamentos_data = [{
+            "forma_pagamento": "DINHEIRO",
+            "valor": total_liquido,
+            "valor_recebido": total_liquido,
+            "troco": 0.0
+        }]
+
+    if len(pagamentos_data) > 2:
+        return RedirectResponse(url="/pdv?erro=max_duas_formas", status_code=302)
+
+    soma_pagamentos = 0.0
+    pagamentos_validados = []
+
+    for p in pagamentos_data:
+        forma = str(p.get("forma_pagamento", "")).strip().upper()
+        if not forma:
+            forma = "DINHEIRO"
+        
+        try:
+            val = round(float(p.get("valor", 0.0)), 2)
+        except (ValueError, TypeError):
+            val = 0.0
+
+        if val <= 0:
+            return RedirectResponse(url="/pdv?erro=valor_pagamento_invalido", status_code=302)
+
+        soma_pagamentos += val
+
+        val_rec = None
+        troco = 0.0
+        if "DINHEIRO" in forma:
+            try:
+                val_rec = round(float(p.get("valor_recebido", val)), 2)
+            except (ValueError, TypeError):
+                val_rec = val
+            
+            if val_rec < val:
+                return RedirectResponse(url="/pdv?erro=dinheiro_insuficiente", status_code=302)
+            troco = round(val_rec - val, 2)
+
+        pagamentos_validados.append({
+            "forma_pagamento": forma,
+            "valor":           val,
+            "valor_recebido":  val_rec,
+            "troco":           troco
+        })
+
+    # Valida que a soma dos pagamentos é igual ao total líquido da venda
+    if abs(soma_pagamentos - total_liquido) > 0.05:
+        return RedirectResponse(url=f"/pdv?erro=soma_pagamentos_invalida&total={total_liquido}&pago={soma_pagamentos}", status_code=302)
+
+    # ── Persiste tudo em uma única transação ─────────────────
     try:
         venda = Venda(
             cliente_id          = cliente_id or None,
             usuario_id          = usuario.get("id"),
             desconto_percentual = desconto_percentual,
+            desconto_manual     = valor_desconto_manual,
+            desconto_tipo       = desconto_tipo,
             total_bruto         = round(total_bruto, 2),
             total_liquido       = round(total_liquido, 2),
             observacao          = observacao or None,
@@ -187,6 +260,15 @@ def finalizar_venda(
                 observacao     = f"Venda PDV #{venda.id}",
                 produto_id     = item["produto"].id,
                 usuario_id     = usuario.get("id")
+            ))
+
+        for pag in pagamentos_validados:
+            db.add(PagamentoVenda(
+                venda_id        = venda.id,
+                forma_pagamento = pag["forma_pagamento"],
+                valor           = pag["valor"],
+                valor_recebido  = pag["valor_recebido"],
+                troco           = pag["troco"],
             ))
 
         db.commit()

@@ -54,6 +54,7 @@
                     <th>Cliente</th>
                     <th>Qtd. Itens</th>
                     <th>Desconto</th>
+                    <th>Pagamento</th>
                     <th>Total Final</th>
                     <th>Operador</th>
                     <th style="text-align: center;">Ações</th>
@@ -83,13 +84,32 @@
                     </td>
                     <td style="white-space: nowrap;"><strong>{{ v.itens | length }} item(ns)</strong></td>
                     <td style="white-space: nowrap;">
-                        {% if v.desconto_percentual > 0 %}
+                        {% if v.desconto_manual > 0 %}
+                            <span style="color:#16a34a; font-weight:600;">
+                                Manual (− R$ {{ "%.2f"|format(v.desconto_manual)|replace('.', ',') }})
+                            </span>
+                        {% elif v.desconto_percentual > 0 %}
                             <span style="color:#16a34a; font-weight:600;">
                                 {{ v.desconto_percentual|int }}%
                                 (− R$ {{ "%.2f"|format(v.desconto_valor)|replace('.', ',') }})
                             </span>
                         {% else %}
                             <span style="color:var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space: nowrap;">
+                        {% if v.pagamentos %}
+                            {% for p in v.pagamentos %}
+                                <span style="display:inline-block; font-size:11px; font-weight:600; padding:2px 6px; border-radius:4px; margin-right:4px; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1;">
+                                    {% if 'DINHEIRO' in p.forma_pagamento %}💵 Dinheiro
+                                    {% elif 'CARTAO_DEBITO' in p.forma_pagamento %}💳 Débito
+                                    {% elif 'CARTAO_CREDITO' in p.forma_pagamento %}💳 Crédito
+                                    {% elif 'PIX' in p.forma_pagamento %}📱 PIX
+                                    {% else %}{{ p.forma_pagamento }}{% endif %}
+                                </span>
+                            {% endfor %}
+                        {% else %}
+                            <span style="color:var(--text-muted); font-size:11px;">Dinheiro</span>
                         {% endif %}
                     </td>
                     <td style="white-space: nowrap;">

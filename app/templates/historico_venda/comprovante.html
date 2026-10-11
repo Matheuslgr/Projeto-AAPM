@@ -89,6 +89,34 @@
                 </div>
             </div>
 
+            <!-- Formas de Pagamento -->
+            {% if venda.pagamentos %}
+            <div class="itens-section" style="margin-top: 14px;">
+                <div class="itens-title">Forma(s) de Pagamento</div>
+                <div class="itens-list">
+                    {% for pag in venda.pagamentos %}
+                    <div class="item-row">
+                        <div class="item-info">
+                            <span class="item-name">
+                                {% if 'DINHEIRO' in pag.forma_pagamento %}💵 Dinheiro
+                                {% elif 'CARTAO_DEBITO' in pag.forma_pagamento %}💳 Cartão de Débito
+                                {% elif 'CARTAO_CREDITO' in pag.forma_pagamento %}💳 Cartão de Crédito
+                                {% elif 'PIX' in pag.forma_pagamento %}📱 PIX
+                                {% else %}{{ pag.forma_pagamento }}{% endif %}
+                            </span>
+                            {% if pag.valor_recebido and pag.valor_recebido > pag.valor %}
+                            <span class="item-qtd-price" style="color: #16a34a; font-weight: 500;">
+                                Recebido: R$ {{ "%.2f"|format(pag.valor_recebido)|replace('.', ',') }} &bull; Troco: R$ {{ "%.2f"|format(pag.troco)|replace('.', ',') }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <span class="item-subtotal">R$ {{ "%.2f"|format(pag.valor)|replace('.', ',') }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Totais -->
             <div class="totais-section">
                 <div class="total-row">
@@ -96,10 +124,17 @@
                     <span>R$ {{ "%.2f"|format(venda.total_bruto)|replace('.', ',') }}</span>
                 </div>
 
-                {% if venda.desconto_valor > 0 %}
+                {% if venda.desconto_manual > 0 %}
+                <div class="total-row desconto">
+                    <span>Desconto Manual</span>
+                    <span>− R$ {{ "%.2f"|format(venda.desconto_manual)|replace('.', ',') }}</span>
+                </div>
+                {% endif %}
+
+                {% if (venda.desconto_valor - venda.desconto_manual) > 0.01 %}
                 <div class="total-row desconto">
                     <span>Desconto Clube MARTPaper</span>
-                    <span>− R$ {{ "%.2f"|format(venda.desconto_valor)|replace('.', ',') }}</span>
+                    <span>− R$ {{ "%.2f"|format(venda.desconto_valor - venda.desconto_manual)|replace('.', ',') }}</span>
                 </div>
                 {% endif %}
 
