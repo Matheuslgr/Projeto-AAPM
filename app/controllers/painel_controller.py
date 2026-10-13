@@ -17,7 +17,7 @@ from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.models.produto import Produto
 from app.models.armario import Armario
 from app.models.usuarios import Usuario
-from app.models.venda import Venda
+from app.models.venda import Venda, PagamentoVenda
 from app.models.cliente import Cliente
 from app.auth import get_admin
 
@@ -38,25 +38,22 @@ def painel_administrativo(
     hoje = date.today()
 
     # ----------------------------------------------------------
-    # 1. Movimentações do dia (Saídas = Vendas de Hoje)
+    # 1. Vendas do dia (registros reais em Venda)
     # ----------------------------------------------------------
-    movs_hoje = db.query(Movimentacao).filter(
-        Movimentacao.tipo == TipoMovimentacao.SAIDA,
-        func.date(Movimentacao.criado_em) == hoje
+    vendas_hoje_list = db.query(Venda).filter(
+        func.date(Venda.criado_em) == hoje
     ).all()
 
-    vendas_hoje = len(movs_hoje)
-    total_hoje = sum(m.valor_total for m in movs_hoje)
+    vendas_hoje = len(vendas_hoje_list)
+    total_hoje = sum(v.total_liquido for v in vendas_hoje_list)
 
     # ----------------------------------------------------------
-    # 2. Movimentações totais (Todas as Vendas)
+    # 2. Vendas totais (todas as vendas do PDV)
     # ----------------------------------------------------------
-    movs_todas = db.query(Movimentacao).filter(
-        Movimentacao.tipo == TipoMovimentacao.SAIDA
-    ).all()
+    vendas_todas_list = db.query(Venda).all()
 
-    total_vendas = len(movs_todas)
-    total_geral = sum(m.valor_total for m in movs_todas)
+    total_vendas = len(vendas_todas_list)
+    total_geral = sum(v.total_liquido for v in vendas_todas_list)
 
     # Ticket médio: calcula baseado no dia de hoje (ou geral se hoje for 0)
     ticket_medio = (total_hoje / vendas_hoje) if vendas_hoje > 0 else ((total_geral / total_vendas) if total_vendas > 0 else 0.0)
@@ -109,7 +106,7 @@ def painel_administrativo(
         })
 
     # ----------------------------------------------------------
-    # 6. Vendas dos últimos 7 dias (Soma diária real SQL)
+    # 6. Vendas dos últimos 7 dias (Receita diária real via Venda)
     # ----------------------------------------------------------
     vendas_7_dias_labels = []
     vendas_7_dias_valores = []
@@ -118,55 +115,71 @@ def painel_administrativo(
         dia_alvo = hoje - timedelta(days=i)
         vendas_7_dias_labels.append(dia_alvo.strftime("%d/%m"))
 
-        total_dia = db.query(func.sum(Movimentacao.quantidade * Movimentacao.preco_unitario)).filter(
-            Movimentacao.tipo == TipoMovimentacao.SAIDA,
-            func.date(Movimentacao.criado_em) == dia_alvo
+        total_dia = db.query(func.sum(Venda.total_liquido)).filter(
+            func.date(Venda.criado_em) == dia_alvo
         ).scalar() or 0.0
 
         vendas_7_dias_valores.append(round(float(total_dia), 2))
 
     # ----------------------------------------------------------
-    # 7. Vendas por Hora (Horários de Pico reais 07h às 21h)
+    # 7. Vendas por Hora (Horários de Pico reais 07h às 21h via Venda)
     # ----------------------------------------------------------
     horas_labels = [f"{h:02d}h" for h in range(7, 22)]
     vendas_por_hora_valores = []
 
     for h in range(7, 22):
-        qtd_hora = db.query(func.sum(Movimentacao.quantidade)).filter(
-            Movimentacao.tipo == TipoMovimentacao.SAIDA,
-            extract('hour', Movimentacao.criado_em) == h
-        ).scalar() or 0
+        qtd_hora = db.query(Venda).filter(
+            extract('hour', Venda.criado_em) == h
+        ).count()
 
         vendas_por_hora_valores.append(int(qtd_hora))
 
     # ----------------------------------------------------------
-    # 8. Formas de Pagamento (Análise real de observações das vendas)
+    # 8. Formas de Pagamento (Dados reais de PagamentoVenda)
     # ----------------------------------------------------------
     val_dinheiro = 0.0
     val_cartao = 0.0
     val_pix = 0.0
     val_outros = 0.0
 
-    for m in movs_todas:
-        obs = (m.observacao or "").lower()
-        if "pix" in obs:
-            val_pix += m.valor_total
-        elif "cart" in obs or "débito" in obs or "debito" in obs or "crédito" in obs or "credito" in obs:
-            val_cartao += m.valor_total
-        elif "dinheiro" in obs or "espécie" in obs or "especie" in obs:
-            val_dinheiro += m.valor_total
+    for v in vendas_todas_list:
+        if v.pagamentos:
+            for p in v.pagamentos:
+                forma = (p.forma_pagamento or "").upper()
+                if "PIX" in forma:
+                    val_pix += p.valor
+                elif "CARTAO" in forma or "DEBITO" in forma or "CREDITO" in forma:
+                    val_cartao += p.valor
+                elif "DINHEIRO" in forma:
+                    val_dinheiro += p.valor
+                else:
+                    val_outros += p.valor
         else:
-            val_outros += m.valor_total
+            # Vendas legadas sem detalhamento de pagamentos foram em dinheiro
+            val_dinheiro += (v.total_liquido or 0.0)
 
-    total_pag_conhecido = val_dinheiro + val_cartao + val_pix + val_outros
+    val_dinheiro = round(val_dinheiro, 2)
+    val_cartao = round(val_cartao, 2)
+    val_pix = round(val_pix, 2)
+    val_outros = round(val_outros, 2)
+    total_pag_conhecido = round(val_dinheiro + val_cartao + val_pix + val_outros, 2)
 
     if total_pag_conhecido > 0:
         pct_dinheiro = round((val_dinheiro / total_pag_conhecido) * 100)
         pct_cartao = round((val_cartao / total_pag_conhecido) * 100)
         pct_pix = round((val_pix / total_pag_conhecido) * 100)
         pct_outros = round((val_outros / total_pag_conhecido) * 100)
+
+        soma_pct = pct_dinheiro + pct_cartao + pct_pix + pct_outros
+        if soma_pct != 100 and soma_pct > 0:
+            itens_pct = [('d', pct_dinheiro), ('c', pct_cartao), ('p', pct_pix), ('o', pct_outros)]
+            maior = max(itens_pct, key=lambda x: x[1])
+            diff = 100 - soma_pct
+            if maior[0] == 'd': pct_dinheiro += diff
+            elif maior[0] == 'c': pct_cartao += diff
+            elif maior[0] == 'p': pct_pix += diff
+            elif maior[0] == 'o': pct_outros += diff
     else:
-        # Se não houver observações com palavra-chave específica, calcula com base nas vendas reais existentes
         pct_dinheiro = 0
         pct_cartao = 0
         pct_pix = 0
