@@ -46,96 +46,98 @@
         </form>
 
         <!-- Tabela de Histórico Padronizada -->
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Venda</th>
-                    <th>Data e Hora</th>
-                    <th>Cliente</th>
-                    <th>Qtd. Itens</th>
-                    <th>Desconto</th>
-                    <th>Pagamento</th>
-                    <th>Total Final</th>
-                    <th>Operador</th>
-                    <th style="text-align: center;">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for v in vendas %}
-                <tr class="venda-row">
-                    <td>
-                        <a href="/pdv/venda/{{ v.id }}" class="venda-id-badge">
-                            #{{ v.id }}
-                        </a>
-                    </td>
-                    <td style="white-space: nowrap;"><strong>{{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}</strong></td>
-                    <td style="white-space: nowrap;">
-                        {% if v.cliente %}
-                            <strong>{{ v.cliente.nome }}</strong>
-                            {% if v.cliente.is_associado %}
-                                <span class="badge-associado">
-                                    <i data-lucide="check" style="width:10px;height:10px;"></i>
-                                    Clube MARTPaper
-                                </span>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Venda</th>
+                        <th>Data e Hora</th>
+                        <th>Cliente</th>
+                        <th>Qtd. Itens</th>
+                        <th>Desconto</th>
+                        <th>Pagamento</th>
+                        <th>Total Final</th>
+                        <th>Operador</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vendas %}
+                    <tr class="venda-row">
+                        <td>
+                            <a href="/pdv/venda/{{ v.id }}" class="venda-id-badge">
+                                #{{ v.id }}
+                            </a>
+                        </td>
+                        <td style="white-space: nowrap;"><strong>{{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}</strong></td>
+                        <td style="white-space: nowrap;">
+                            {% if v.cliente %}
+                                <strong>{{ v.cliente.nome }}</strong>
+                                {% if v.cliente.is_associado %}
+                                    <span class="badge-associado">
+                                        <i data-lucide="check" style="width:10px;height:10px;"></i>
+                                        Clube MARTPaper
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge-balcao">Balcão (Sem cadastro)</span>
                             {% endif %}
-                        {% else %}
-                            <span class="badge-balcao">Balcão (Sem cadastro)</span>
-                        {% endif %}
-                    </td>
-                    <td style="white-space: nowrap;"><strong>{{ v.itens | length }} item(ns)</strong></td>
-                    <td style="white-space: nowrap;">
-                        {% if v.desconto_manual > 0 %}
-                            <span style="color:#16a34a; font-weight:600;">
-                                Manual (− R$ {{ "%.2f"|format(v.desconto_manual)|replace('.', ',') }})
-                            </span>
-                        {% elif v.desconto_percentual > 0 %}
-                            <span style="color:#16a34a; font-weight:600;">
-                                {{ v.desconto_percentual|int }}%
-                                (− R$ {{ "%.2f"|format(v.desconto_valor)|replace('.', ',') }})
-                            </span>
-                        {% else %}
-                            <span style="color:var(--text-muted);">—</span>
-                        {% endif %}
-                    </td>
-                    <td style="white-space: nowrap;">
-                        {% if v.pagamentos %}
-                            {% for p in v.pagamentos %}
-                                <span style="display:inline-block; font-size:11px; font-weight:600; padding:2px 6px; border-radius:4px; margin-right:4px; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1;">
-                                    {% if 'DINHEIRO' in p.forma_pagamento %}💵 Dinheiro
-                                    {% elif 'CARTAO_DEBITO' in p.forma_pagamento %}💳 Débito
-                                    {% elif 'CARTAO_CREDITO' in p.forma_pagamento %}💳 Crédito
-                                    {% elif 'PIX' in p.forma_pagamento %}📱 PIX
-                                    {% else %}{{ p.forma_pagamento }}{% endif %}
+                        </td>
+                        <td style="white-space: nowrap;"><strong>{{ v.itens | length }} item(ns)</strong></td>
+                        <td style="white-space: nowrap;">
+                            {% if v.desconto_manual > 0 %}
+                                <span style="color:#16a34a; font-weight:600;">
+                                    Manual (− R$ {{ "%.2f"|format(v.desconto_manual)|replace('.', ',') }})
                                 </span>
-                            {% endfor %}
-                        {% else %}
-                            <span style="color:var(--text-muted); font-size:11px;">Dinheiro</span>
-                        {% endif %}
-                    </td>
-                    <td style="white-space: nowrap;">
-                        <span class="valor-liquido">
-                            R$ {{ "%.2f"|format(v.total_liquido)|replace('.', ',') }}
-                        </span>
-                    </td>
-                    <td style="white-space: nowrap;"><strong>{{ v.usuario.nome if v.usuario else "Sistema" }}</strong></td>
-                    <td style="text-align: center;">
-                        <a href="/pdv/venda/{{ v.id }}" class="btn-cupom" title="Ver Comprovante">
-                            <i data-lucide="receipt" style="width:14px;height:14px;"></i>
-                            Comprovante
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
+                            {% elif v.desconto_percentual > 0 %}
+                                <span style="color:#16a34a; font-weight:600;">
+                                    {{ v.desconto_percentual|int }}%
+                                    (− R$ {{ "%.2f"|format(v.desconto_valor)|replace('.', ',') }})
+                                </span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">
+                            {% if v.pagamentos %}
+                                {% for p in v.pagamentos %}
+                                    <span class="badge-pagamento">
+                                        {% if 'DINHEIRO' in p.forma_pagamento %}💵 Dinheiro
+                                        {% elif 'CARTAO_DEBITO' in p.forma_pagamento %}💳 Débito
+                                        {% elif 'CARTAO_CREDITO' in p.forma_pagamento %}💳 Crédito
+                                        {% elif 'PIX' in p.forma_pagamento %}📱 PIX
+                                        {% else %}{{ p.forma_pagamento }}{% endif %}
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="badge-pagamento">💵 Dinheiro</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <span class="valor-liquido">
+                                R$ {{ "%.2f"|format(v.total_liquido)|replace('.', ',') }}
+                            </span>
+                        </td>
+                        <td style="white-space: nowrap;"><strong>{{ v.usuario.nome if v.usuario else "Sistema" }}</strong></td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <a href="/pdv/venda/{{ v.id }}" class="btn-cupom" title="Ver Comprovante">
+                                <i data-lucide="receipt" style="width:14px;height:14px;"></i>
+                                Comprovante
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-                {% if not vendas %}
-                <tr>
-                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">
-                        Nenhuma venda registrada até o momento.
-                    </td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                    {% if not vendas %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                            Nenhuma venda registrada até o momento.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
 
         <!-- Paginação -->
         {% if total_paginas > 1 or total_vendas > 0 %}
