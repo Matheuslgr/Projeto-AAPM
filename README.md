@@ -19,11 +19,11 @@ No terminal:
 python -m alembic init migrations
 ```
 
-# Editar o arquivo alembic init -  na linha 89:
+# Editar o arquivo alembic init - na linha 89:
 sqlalchemy.url = 
 
 # Gerar a migration
-no terminal:
+No terminal:
 ```bash
 python -m alembic revision --autogenerate -m "Criar a tabela usuarios"
 ```
@@ -33,9 +33,22 @@ python -m alembic revision --autogenerate -m "Criar a tabela usuarios"
 python -m alembic upgrade head
 ```
 
-# Rodad o código
+# Rodar o código
 ```bash
 python -m uvicorn app.main:app --reload 
 ```
 
+# Executar os Testes Automatizados (Apresentação)
 
+Para rodar todos os 129 testes automatizados da API de uma só vez (com relatório detalhado e colorido em verde para a apresentação):
+
+```bash
+pytest -v
+```
+
+Ou de forma rápida e concisa:
+```bash
+pytest
+```
+
+> **Nota:** Todos os testes rodam em memória de forma isolada a partir do `banco test.db`. O banco de dados principal `banco.db` permanece 100% preservado e intacto.
