@@ -11,11 +11,14 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract, or_
 
+
 from app.database import get_db
 from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.models.produto import Produto
 from app.models.armario import Armario
 from app.models.usuarios import Usuario
+from app.models.venda import Venda
+from app.models.cliente import Cliente
 from app.auth import get_admin
 
 router = APIRouter(prefix="/painel", tags=["Painel"])
@@ -170,16 +173,15 @@ def painel_administrativo(
         pct_outros = 0
 
     # ----------------------------------------------------------
-    # 9. Associados (% de vendas com desconto/preço de sócio)
+    # 9. Associados (% de vendas feitas por clientes associados)
+    # Usa a tabela Venda com join em Cliente onde is_associado=True
     # ----------------------------------------------------------
-    vendas_socio_count = db.query(Movimentacao).filter(
-        Movimentacao.tipo == TipoMovimentacao.SAIDA,
-        or_(
-            Movimentacao.observacao.ilike("%sócio%"),
-            Movimentacao.observacao.ilike("%socio%"),
-            Movimentacao.observacao.ilike("%associado%")
-        )
-    ).count()
+    vendas_socio_count = (
+        db.query(Venda)
+        .join(Cliente, Venda.cliente_id == Cliente.id)
+        .filter(Cliente.is_associado == True)
+        .count()
+    )
 
     pct_socio = round((vendas_socio_count / total_vendas) * 100) if total_vendas > 0 else 0
 
