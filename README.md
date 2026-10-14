@@ -43,12 +43,12 @@ python -m uvicorn app.main:app --reload
 Para rodar todos os 129 testes automatizados da API de uma só vez (com relatório detalhado e colorido em verde para a apresentação):
 
 ```bash
-pytest -v
+python -m pytest -v
 ```
 
 Ou de forma rápida e concisa:
 ```bash
-pytest
+ python -m pytest 
 ```
 
 > **Nota:** Todos os testes rodam em memória de forma isolada a partir do `banco test.db`. O banco de dados principal `banco.db` permanece 100% preservado e intacto.
