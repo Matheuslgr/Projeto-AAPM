@@ -197,12 +197,12 @@ O sistema conta com **129 testes automatizados** com cobertura integral de rotas
 
 Para executar a suite de testes com saída detalhada:
 ```bash
-pytest -v
+python -m pytest -v
 ```
 
 Ou de forma rápida:
 ```bash
-pytest
+ python -m pytest 
 ```
 
 >  **Garantia de Isolamento:** Os testes executam em banco isolado (`banco test.db`), garantindo que os dados operacionais do banco principal (`banco.db`) nunca sejam alterados ou corrompidos durante os testes.
