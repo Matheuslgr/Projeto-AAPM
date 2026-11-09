@@ -1,11 +1,18 @@
 /* ============================================================================
-   PAINEL.CSS - Dashboard Administrativo AAPM PDV (Layout Fiel à Imagem)
+   PAINEL.CSS - Dashboard Administrativo AAPM PDV (Layout Totalmente Responsivo)
+   Suporte a Desktop, Tablet e Mobile
    ============================================================================ */
 
+/* Page Wrapper */
 .page-wrapper {
     padding: 32px;
     max-width: 1500px;
     margin: 0 auto;
+    width: 100%;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 /* Header */
@@ -13,7 +20,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
 }
@@ -33,6 +40,7 @@
     align-items: center;
     justify-content: center;
     color: var(--accent-color);
+    flex-shrink: 0;
 }
 
 .painel-title-text h2 {
@@ -65,6 +73,7 @@
     font-weight: 500;
     color: var(--text-muted);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    flex-shrink: 0;
 }
 
 .realtime-badge i {
@@ -78,19 +87,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    margin-bottom: 28px;
-}
-
-@media (max-width: 1024px) {
-    .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .kpi-grid {
-        grid-template-columns: 1fr;
-    }
+    margin-bottom: 24px;
 }
 
 .kpi-card {
@@ -105,6 +102,7 @@
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    min-width: 0;
 }
 
 .kpi-card:hover {
@@ -121,6 +119,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
 }
 
 .kpi-label {
@@ -129,6 +128,8 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-muted);
+    word-break: break-word;
+    line-height: 1.3;
 }
 
 .kpi-icon-badge {
@@ -138,6 +139,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .kpi-icon-badge.green { background: #ecfdf5; color: #10b981; }
@@ -150,6 +152,7 @@
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.1;
+    word-break: break-word;
 }
 
 .kpi-subtext {
@@ -158,20 +161,15 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    line-height: 1.3;
 }
 
 /* Two Columns Layout */
 .grid-two-cols {
     display: grid;
-    grid-template-columns: 1.6fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     gap: 20px;
-    margin-bottom: 28px;
-}
-
-@media (max-width: 992px) {
-    .grid-two-cols {
-        grid-template-columns: 1fr;
-    }
+    margin-bottom: 24px;
 }
 
 .dashboard-panel-card {
@@ -182,6 +180,7 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .panel-header-row {
@@ -189,6 +188,7 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 20px;
+    gap: 12px;
 }
 
 .panel-title-area h3 {
@@ -213,13 +213,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 /* Chart Canvas Container */
 .chart-container {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 240px;
+    min-height: 180px;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    max-width: 100%;
 }
 
 /* Formas de Pagamento Donut Wrapper */
@@ -228,6 +235,7 @@
     width: 150px;
     height: 150px;
     margin: 0 auto 16px;
+    flex-shrink: 0;
 }
 
 .payment-center-label {
@@ -313,6 +321,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 }
 
 .rank-circle {
@@ -343,11 +352,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .product-qtd-text {
     font-size: 12px;
     color: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .product-valor-text {
@@ -356,6 +367,7 @@
     color: var(--text-primary);
     min-width: 70px;
     text-align: right;
+    flex-shrink: 0;
 }
 
 .product-progress-bg {
@@ -408,16 +420,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding: 10px 14px;
     background: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 10px;
+    min-width: 0;
 }
 
 .low-stock-name {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .low-stock-badge {
@@ -427,6 +445,8 @@
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Donut & User Active Pill */
@@ -469,6 +489,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .user-active-bar strong {
@@ -480,4 +501,200 @@
 .user-active-bar span {
     font-size: 11px;
     color: var(--text-muted);
+}
+
+/* ============================================================================
+   RESPONSIVIDADE: TABLET & DESKTOP MÉDIO (≤ 1200px)
+   ============================================================================ */
+@media (max-width: 1200px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVIDADE: TABLET (≤ 1024px)
+   ============================================================================ */
+@media (max-width: 1024px) {
+    .page-wrapper {
+        padding: 24px 20px;
+    }
+
+    .grid-two-cols {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-panel-card {
+        padding: 20px;
+    }
+
+    .chart-container {
+        height: 220px;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVIDADE: MOBILE (≤ 768px)
+   ============================================================================ */
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 16px 14px;
+    }
+
+    .painel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .painel-title-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+
+    .painel-title-text h2 {
+        font-size: 20px;
+    }
+
+    .painel-title-text p {
+        font-size: 12px;
+    }
+
+    .realtime-badge {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+
+    .dashboard-panel-card {
+        padding: 18px 16px;
+        border-radius: 14px;
+    }
+
+    .panel-header-row {
+        margin-bottom: 16px;
+    }
+
+    .panel-title-area h3 {
+        font-size: 15px;
+    }
+
+    .panel-title-area p {
+        font-size: 11.5px;
+    }
+
+    .chart-container {
+        height: 210px;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVIDADE: MOBILE PEQUENO (≤ 580px)
+   ============================================================================ */
+@media (max-width: 580px) {
+    .page-wrapper {
+        padding: 14px 10px;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .kpi-card {
+        padding: 16px;
+        gap: 10px;
+    }
+
+    .kpi-value {
+        font-size: 23px;
+    }
+
+    .kpi-label {
+        font-size: 10.5px;
+    }
+
+    .kpi-subtext {
+        font-size: 11.5px;
+    }
+
+    .chart-container {
+        height: 190px;
+    }
+
+    .payment-donut-wrapper {
+        width: 130px;
+        height: 130px;
+        margin-bottom: 12px;
+    }
+
+    .payment-center-label .center-val {
+        font-size: 13px;
+    }
+
+    .payment-legend-item {
+        font-size: 11.5px;
+    }
+
+    .top-products-container {
+        gap: 12px;
+    }
+
+    .top-product-header {
+        gap: 8px;
+    }
+
+    .product-name-text {
+        font-size: 12px;
+    }
+
+    .product-qtd-text {
+        font-size: 11px;
+    }
+
+    .product-valor-text {
+        font-size: 12px;
+        min-width: 60px;
+    }
+
+    .low-stock-item {
+        padding: 8px 12px;
+    }
+
+    .low-stock-name {
+        font-size: 12px;
+    }
+
+    .low-stock-badge {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+
+    .donut-box {
+        padding: 10px 0;
+    }
+
+    .user-active-bar {
+        padding: 12px 14px;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .user-active-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .user-active-bar strong {
+        font-size: 13px;
+    }
+
+    .user-active-bar span {
+        font-size: 10.5px;
+    }
 }

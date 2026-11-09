@@ -3,7 +3,7 @@
 {% block title %}Painel Administrativo — AAPM PDV{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="/static/css/painel.css?v=4">
+<link rel="stylesheet" href="/static/css/painel.css?v=5">
 {% endblock %}
 
 {% block content %}
@@ -368,7 +368,7 @@
                     data: {{ vendas_por_hora_valores | tojson }},
                     backgroundColor: '#ff7a28',
                     borderRadius: 6,
-                    barThickness: 24
+                    maxBarThickness: 24
                 }]
             },
             options: {

@@ -51,6 +51,7 @@ body {
     padding: 0 24px;
     z-index: 10;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .header-left {
@@ -606,15 +607,87 @@ input:checked + .slider:before {
 }
 
 /* ==========================================
-   RESPONSIVO
+   RESPONSIVO GLOBAL (Header, Nav & Estrutura)
    ========================================== */
 @media (max-width: 1024px) {
+    .main-header {
+        padding: 0 16px;
+    }
+    .header-left {
+        gap: 16px;
+    }
+    .main-nav {
+        gap: 4px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .main-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .nav-item {
+        padding: 6px 12px;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
     .cart-section {
         width: 320px;
     }
 }
 
 @media (max-width: 768px) {
+    .main-header {
+        height: auto;
+        min-height: 56px;
+        padding: 10px 14px 6px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .header-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .header-right {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        gap: 10px;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .main-nav {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 6px;
+        padding: 2px 0 6px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-item {
+        flex-shrink: 0;
+        padding: 6px 12px;
+        font-size: 12.5px;
+    }
+
     .app-container {
         flex-direction: column;
         overflow-y: auto;
