@@ -3,7 +3,7 @@
 {% block title %}Produtos — AAPM PDV{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="/static/css/produtos.css?v=cardfix1">
+<link rel="stylesheet" href="/static/css/produtos.css?v=cardfix2">
 {% endblock %}
 
 {% block content %}
@@ -93,7 +93,7 @@
             document.addEventListener("DOMContentLoaded", function () {
                 const searchInput = document.getElementById("busca-input");
                 if (searchInput && searchInput.value) {
-                    searchInput.focus();
+                    searchInput.focus({ preventScroll: true });
                     searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
                 }
             });
@@ -204,7 +204,6 @@
         </table>
 
         <!-- Paginação -->
-        {% if total_paginas > 1 or total_produtos > 0 %}
         <div class="pagination-wrapper">
             <div class="pagination-info">
                 Página <strong>{{ pagina }}</strong> de <strong>{{ total_paginas }}</strong> &bull; Total: <strong>{{ total_produtos }}</strong> produtos
@@ -250,7 +249,6 @@
             </div>
             {% endif %}
         </div>
-        {% endif %}
 
     </div>
 </div>

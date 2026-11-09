@@ -7,7 +7,7 @@
     max-width: 1500px;
     margin: 0 auto;
     width: 100%;
-    min-height: calc(100vh - 64px);
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -20,10 +20,9 @@
     padding: 32px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     width: 100%;
-    flex: 1;
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 128px);
     box-sizing: border-box;
 }
 
